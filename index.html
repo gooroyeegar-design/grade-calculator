@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>حساب المعدل النهائي</title>
+<title>حساب المعدل النهائي /20</title>
 
 <style>
   body {
@@ -96,7 +96,7 @@
 
 <body>
 
-<h1>حاسبة المعدل النهائي</h1>
+<h1>حاسبة المعدل النهائي (/20)</h1>
 
 <div class="container">
 
@@ -154,7 +154,7 @@
     <input type="number" id="m7">
   </div>
 
-  <button onclick="calculate()">احسب المعدل</button>
+  <button onclick="calculate()">احسب المعدل النهائي</button>
 
   <div class="result" id="result"></div>
 
@@ -171,22 +171,27 @@ function check(v) {
 
 function calculate() {
   try {
+    // TD + Course first, then coefficient
     const m1 = (0.6 * check(m1c.value) + 0.4 * check(m1t.value)) * 2;
     const m2 = (0.6 * check(m2c.value) + 0.4 * check(m2t.value)) * 2;
     const m3 = (0.6 * check(m3c.value) + 0.4 * check(m3t.value)) * 1;
 
+    // Normal modules
     const m4 = check(m4.value) * 1;
     const m5 = check(m5.value) * 1;
     const m6 = check(m6.value) * 1;
     const m7 = check(m7.value) * 1;
 
-    const total = m1 + m2 + m3 + m4 + m5 + m6 + m7;
-    const average = (total / 8).toFixed(2);
+    const totalWeighted = m1 + m2 + m3 + m4 + m5 + m6 + m7;
+    const totalCoefficients = 8;
 
-    let extraMessage = "";
+    // FINAL AVERAGE OUT OF 20
+    const finalAverage = (totalWeighted / totalCoefficients).toFixed(2);
+
     let status = "";
+    let extraMessage = "";
 
-    if (average >= 10) {
+    if (finalAverage >= 10) {
       status = '<span class="pass">ناجح ✅</span>';
       extraMessage = '<div class="message">sa7it yal 5abash 😤🔥</div>';
     } else {
@@ -194,126 +199,11 @@ function calculate() {
     }
 
     document.getElementById("result").innerHTML =
-      `المعدل النهائي: ${average} / 20<br>${status}${extraMessage}`;
+      `المعدل النهائي: ${finalAverage} / 20<br>${status}${extraMessage}`;
 
-  } catch(e) {}
+  } catch (e) {}
 }
 </script>
 
 </body>
-</html>      padding: 12px;
-      font-size: 16px;
-      background: #2ecc71;
-      border: none;
-      color: white;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #27ae60;
-    }
-
-    .result {
-      margin-top: 20px;
-      font-size: 20px;
-      text-align: center;
-      font-weight: bold;
-    }
-  </style>
-</head>
-<body>
-
-<h1>Final Grade Calculator</h1>
-
-<!-- Special modules -->
-<div class="module">
-  <h3>Module 1 (60% Course + 40% TD)</h3>
-  <label>Course Test</label>
-  <input type="number" id="m1_course">
-  <label>TD Test</label>
-  <input type="number" id="m1_td">
-</div>
-
-<div class="module">
-  <h3>Module 2 (60% Course + 40% TD)</h3>
-  <label>Course Test</label>
-  <input type="number" id="m2_course">
-  <label>TD Test</label>
-  <input type="number" id="m2_td">
-</div>
-
-<div class="module">
-  <h3>Module 3 (60% Course + 40% TD)</h3>
-  <label>Course Test</label>
-  <input type="number" id="m3_course">
-  <label>TD Test</label>
-  <input type="number" id="m3_td">
-</div>
-
-<!-- Normal modules -->
-<div class="module">
-  <h3>Module 4</h3>
-  <input type="number" id="m4">
-</div>
-
-<div class="module">
-  <h3>Module 5</h3>
-  <input type="number" id="m5">
-</div>
-
-<div class="module">
-  <h3>Module 6</h3>
-  <input type="number" id="m6">
-</div>
-
-<div class="module">
-  <h3>Module 7</h3>
-  <input type="number" id="m7">
-</div>
-
-<div class="module">
-  <h3>Module 8</h3>
-  <input type="number" id="m8">
-</div>
-
-<div class="module">
-  <h3>Module 9</h3>
-  <input type="number" id="m9">
-</div>
-
-<div class="module">
-  <h3>Module 10</h3>
-  <input type="number" id="m10">
-</div>
-
-<button onclick="calculate()">Calculate Final Grade</button>
-
-<div class="result" id="result"></div>
-
-<script>
-  function calculate() {
-    const m1 = 0.6 * m1_course.value + 0.4 * m1_td.value;
-    const m2 = 0.6 * m2_course.value + 0.4 * m2_td.value;
-    const m3 = 0.6 * m3_course.value + 0.4 * m3_td.value;
-
-    const m4 = Number(document.getElementById("m4").value);
-    const m5 = Number(document.getElementById("m5").value);
-    const m6 = Number(document.getElementById("m6").value);
-    const m7 = Number(document.getElementById("m7").value);
-    const m8 = Number(document.getElementById("m8").value);
-    const m9 = Number(document.getElementById("m9").value);
-    const m10 = Number(document.getElementById("m10").value);
-
-    const total =
-      m1 + m2 + m3 + m4 + m5 + m6 + m7 + m8 + m9 + m10;
-
-    const finalGrade = (total / 10).toFixed(2);
-
-    document.getElementById("result").innerText =
-      "Final Grade: " + finalGrade;
-  }
-</script>
-
-</body>
-                      </html>
+</html>
