@@ -2,95 +2,97 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>حساب المعدل النهائي /20</title>
+<title>حاسبة المعدل النهائي /20</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-  body {
-    font-family: "Segoe UI", Tahoma, Arial, sans-serif;
-    background: linear-gradient(135deg, #e3f2fd, #fdfefe);
-    padding: 20px;
-    direction: rtl;
-  }
+body {
+  font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+  background: linear-gradient(135deg, #e3f2fd, #fdfefe);
+  padding: 20px;
+  direction: rtl;
+}
 
-  h1 {
-    text-align: center;
-    margin-bottom: 25px;
-    color: #0d47a1;
-  }
+h1 {
+  text-align: center;
+  margin-bottom: 25px;
+  color: #0d47a1;
+}
 
-  .container {
-    max-width: 650px;
-    margin: auto;
-  }
+.container {
+  max-width: 700px;
+  margin: auto;
+}
 
-  .module {
-    background: white;
-    padding: 18px;
-    margin-bottom: 18px;
-    border-radius: 14px;
-    box-shadow: 0 8px 18px rgba(0,0,0,0.08);
-  }
+.module {
+  background: white;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 14px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
 
-  .module h3 {
-    margin-bottom: 6px;
-    color: #1565c0;
-  }
+.module h3 {
+  margin-bottom: 8px;
+  color: #1565c0;
+}
 
-  .coef {
-    font-size: 13px;
-    color: #555;
-    margin-bottom: 10px;
-  }
+.coef {
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 10px;
+}
 
-  label {
-    display: block;
-    margin-top: 8px;
-    font-size: 14px;
-  }
+label {
+  display: block;
+  margin-top: 8px;
+  font-size: 14px;
+}
 
-  input {
-    width: 100%;
-    padding: 9px;
-    margin-top: 4px;
-    border-radius: 8px;
-    border: 1px solid #bbb;
-    font-size: 15px;
-  }
+input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border-radius: 8px;
+  border: 1px solid #bbb;
+  font-size: 15px;
+}
 
-  button {
-    width: 100%;
-    padding: 16px;
-    font-size: 17px;
-    background: #1565c0;
-    color: white;
-    border: none;
-    border-radius: 14px;
-    cursor: pointer;
-    margin-top: 10px;
-  }
+button {
+  width: 100%;
+  padding: 16px;
+  font-size: 17px;
+  background: #1565c0;
+  color: white;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: 0.2s;
+}
 
-  button:hover {
-    background: #0d47a1;
-  }
+button:hover {
+  background: #0d47a1;
+}
 
-  .result {
-    margin-top: 22px;
-    background: white;
-    padding: 22px;
-    border-radius: 14px;
-    text-align: center;
-    font-size: 19px;
-    font-weight: bold;
-    box-shadow: 0 8px 18px rgba(0,0,0,0.08);
-  }
+.result {
+  margin-top: 25px;
+  background: white;
+  padding: 25px;
+  border-radius: 14px;
+  text-align: center;
+  font-size: 19px;
+  font-weight: bold;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
 
-  .pass { color: green; }
-  .fail { color: red; }
-  .message {
-    margin-top: 10px;
-    font-size: 20px;
-    color: #0d47a1;
-  }
+.pass { color: green; }
+.fail { color: red; }
+.message {
+  margin-top: 12px;
+  font-size: 20px;
+  color: #0d47a1;
+}
 </style>
 </head>
 
@@ -100,6 +102,7 @@
 
 <div class="container">
 
+  <!-- TD + Course, coef 2 -->
   <div class="module">
     <h3>مدخل إلى العلوم القانونية</h3>
     <div class="coef">المعامل: 2</div>
@@ -118,6 +121,7 @@
     <input type="number" id="m2t">
   </div>
 
+  <!-- TD + Course, coef 1 -->
   <div class="module">
     <h3>تنظيم قضائي</h3>
     <div class="coef">المعامل: 1</div>
@@ -127,6 +131,7 @@
     <input type="number" id="m3t">
   </div>
 
+  <!-- Normal modules -->
   <div class="module">
     <h3>منهجية العلوم القانونية</h3>
     <div class="coef">المعامل: 1</div>
@@ -169,14 +174,15 @@ function getValue(id) {
 
 function calculate() {
   try {
+    // Weighted modules first
     const m1 = (0.6 * getValue("m1c") + 0.4 * getValue("m1t")) * 2;
     const m2 = (0.6 * getValue("m2c") + 0.4 * getValue("m2t")) * 2;
     const m3 = (0.6 * getValue("m3c") + 0.4 * getValue("m3t")) * 1;
 
-    const m4 = getValue("m4");
-    const m5 = getValue("m5");
-    const m6 = getValue("m6");
-    const m7 = getValue("m7");
+    const m4 = getValue("m4") * 1;
+    const m5 = getValue("m5") * 1;
+    const m6 = getValue("m6") * 1;
+    const m7 = getValue("m7") * 1;
 
     const totalWeighted = m1 + m2 + m3 + m4 + m5 + m6 + m7;
     const totalCoefficients = 8;
@@ -194,183 +200,11 @@ function calculate() {
 
     document.getElementById("result").innerHTML = html;
 
-  } catch (e) {
-    // stop silently
+  } catch(e) {
+    // Silent stop
   }
 }
 </script>
 
 </body>
-</html>  }
-
-  .coef {
-    font-size: 13px;
-    color: #555;
-    margin-bottom: 10px;
-  }
-
-  label {
-    display: block;
-    margin-top: 8px;
-    font-size: 14px;
-  }
-
-  input {
-    width: 100%;
-    padding: 9px;
-    margin-top: 4px;
-    border-radius: 8px;
-    border: 1px solid #bbb;
-    font-size: 15px;
-  }
-
-  button {
-    width: 100%;
-    padding: 16px;
-    font-size: 17px;
-    background: #1565c0;
-    color: white;
-    border: none;
-    border-radius: 14px;
-    cursor: pointer;
-    margin-top: 10px;
-  }
-
-  button:hover {
-    background: #0d47a1;
-  }
-
-  .result {
-    margin-top: 22px;
-    background: white;
-    padding: 22px;
-    border-radius: 14px;
-    text-align: center;
-    font-size: 19px;
-    font-weight: bold;
-    box-shadow: 0 8px 18px rgba(0,0,0,0.08);
-  }
-
-  .pass { color: green; }
-  .fail { color: red; }
-  .message {
-    margin-top: 10px;
-    font-size: 20px;
-    color: #0d47a1;
-  }
-</style>
-</head>
-
-<body>
-
-<h1>حاسبة المعدل النهائي (/20)</h1>
-
-<div class="container">
-
-  <!-- TD + COURSE (coef 2) -->
-  <div class="module">
-    <h3>مدخل إلى العلوم القانونية</h3>
-    <div class="coef">المعامل: 2</div>
-    <label>علامة المحاضرة</label>
-    <input type="number" id="m1c">
-    <label>علامة الأعمال الموجهة (TD)</label>
-    <input type="number" id="m1t">
-  </div>
-
-  <div class="module">
-    <h3>قانون دستوري</h3>
-    <div class="coef">المعامل: 2</div>
-    <label>علامة المحاضرة</label>
-    <input type="number" id="m2c">
-    <label>علامة الأعمال الموجهة (TD)</label>
-    <input type="number" id="m2t">
-  </div>
-
-  <!-- TD + COURSE (coef 1) -->
-  <div class="module">
-    <h3>تنظيم قضائي</h3>
-    <div class="coef">المعامل: 1</div>
-    <label>علامة المحاضرة</label>
-    <input type="number" id="m3c">
-    <label>علامة الأعمال الموجهة (TD)</label>
-    <input type="number" id="m3t">
-  </div>
-
-  <!-- NORMAL MODULES -->
-  <div class="module">
-    <h3>منهجية العلوم القانونية</h3>
-    <div class="coef">المعامل: 1</div>
-    <input type="number" id="m4">
-  </div>
-
-  <div class="module">
-    <h3>تاريخ النظم</h3>
-    <div class="coef">المعامل: 1</div>
-    <input type="number" id="m5">
-  </div>
-
-  <div class="module">
-    <h3>اللغة الإنجليزية</h3>
-    <div class="coef">المعامل: 1</div>
-    <input type="number" id="m6">
-  </div>
-
-  <div class="module">
-    <h3>المجتمع الدولي</h3>
-    <div class="coef">المعامل: 1</div>
-    <input type="number" id="m7">
-  </div>
-
-  <button onclick="calculate()">احسب المعدل النهائي</button>
-
-  <div class="result" id="result"></div>
-
-</div>
-
-<script>
-function check(v) {
-  if (v === "" || v < 0 || v > 20) {
-    alert("الرجاء إدخال علامة بين 0 و 20 في جميع الخانات.");
-    throw "Invalid";
-  }
-  return Number(v);
-}
-
-function calculate() {
-  try {
-    // TD + Course first, then coefficient
-    const m1 = (0.6 * check(m1c.value) + 0.4 * check(m1t.value)) * 2;
-    const m2 = (0.6 * check(m2c.value) + 0.4 * check(m2t.value)) * 2;
-    const m3 = (0.6 * check(m3c.value) + 0.4 * check(m3t.value)) * 1;
-
-    // Normal modules
-    const m4 = check(m4.value) * 1;
-    const m5 = check(m5.value) * 1;
-    const m6 = check(m6.value) * 1;
-    const m7 = check(m7.value) * 1;
-
-    const totalWeighted = m1 + m2 + m3 + m4 + m5 + m6 + m7;
-    const totalCoefficients = 8;
-
-    // FINAL AVERAGE OUT OF 20
-    const finalAverage = (totalWeighted / totalCoefficients).toFixed(2);
-
-    let status = "";
-    let extraMessage = "";
-
-    if (finalAverage >= 10) {
-      status = '<span class="pass">ناجح ✅</span>';
-      extraMessage = '<div class="message">sa7it yal 5abash 😤🔥</div>';
-    } else {
-      status = '<span class="fail">راسب ❌</span>';
-    }
-
-    document.getElementById("result").innerHTML =
-      `المعدل النهائي: ${finalAverage} / 20<br>${status}${extraMessage}`;
-
-  } catch (e) {}
-}
-</script>
-
-</body>
-</html>
+      </html>
