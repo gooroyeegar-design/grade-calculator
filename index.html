@@ -2,209 +2,197 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>حاسبة المعدل النهائي /20</title>
+<title>حاسبة المعدل الاحترافية</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <style>
+:root {
+  --primary: #1565c0;
+  --bg: #f8f9fa;
+  --card: #ffffff;
+  --text: #333;
+  --border: #eee;
+}
+
+[data-theme="dark"] {
+  --primary: #64b5f6;
+  --bg: #121212;
+  --card: #1e1e1e;
+  --text: #e0e0e0;
+  --border: #333;
+}
+
 body {
-  font-family: "Segoe UI", Tahoma, Arial, sans-serif;
-  background: linear-gradient(135deg, #e3f2fd, #fdfefe);
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
   padding: 20px;
   direction: rtl;
+  transition: 0.3s;
 }
 
-h1 {
-  text-align: center;
-  margin-bottom: 25px;
-  color: #0d47a1;
+.header-tools {
+  display: flex;
+  justify-content: space-between;
+  max-width: 600px;
+  margin: 0 auto 20px;
 }
 
-.container {
-  max-width: 700px;
-  margin: auto;
+.theme-btn {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 8px 15px;
+  border-radius: 20px;
+  cursor: pointer;
+  color: var(--text);
 }
+
+.container { max-width: 600px; margin: auto; }
 
 .module {
-  background: white;
-  padding: 20px;
-  margin-bottom: 20px;
-  border-radius: 14px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  background: var(--card);
+  padding: 18px;
+  margin-bottom: 15px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  border: 1px solid var(--border);
 }
 
-.module h3 {
-  margin-bottom: 8px;
-  color: #1565c0;
-}
+.coef { font-size: 11px; font-weight: bold; color: var(--primary); }
 
-.coef {
-  font-size: 13px;
-  color: #555;
-  margin-bottom: 10px;
-}
-
-label {
-  display: block;
-  margin-top: 8px;
-  font-size: 14px;
-}
-
+.input-group { display: flex; gap: 10px; margin-top: 5px; }
 input {
-  width: 100%;
-  padding: 10px;
-  margin-top: 5px;
-  border-radius: 8px;
-  border: 1px solid #bbb;
-  font-size: 15px;
+  width: 100%; padding: 12px; border-radius: 10px; 
+  border: 2px solid var(--border); background: var(--card);
+  color: var(--text); font-size: 16px;
 }
 
 button {
-  width: 100%;
-  padding: 16px;
-  font-size: 17px;
-  background: #1565c0;
-  color: white;
-  border: none;
-  border-radius: 14px;
-  cursor: pointer;
-  margin-top: 10px;
-  transition: 0.2s;
+  width: 100%; padding: 16px; font-size: 17px;
+  background: var(--primary); color: white;
+  border: none; border-radius: 12px; cursor: pointer;
+  font-weight: bold; margin-top: 10px;
 }
 
-button:hover {
-  background: #0d47a1;
-}
+.btn-share { background: #4caf50; margin-top: 10px; display: none; }
 
 .result {
-  margin-top: 25px;
-  background: white;
-  padding: 25px;
-  border-radius: 14px;
-  text-align: center;
-  font-size: 19px;
-  font-weight: bold;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  margin-top: 25px; background: var(--card); padding: 25px;
+  border-radius: 20px; text-align: center; display: none;
+  border: 2px solid var(--primary);
 }
 
-.pass { color: green; }
-.fail { color: red; }
-.message {
-  margin-top: 12px;
-  font-size: 20px;
-  color: #0d47a1;
-}
+.score-display { font-size: 3rem; font-weight: 800; }
+.pass { color: #4caf50; }
+.fail { color: #f44336; }
 </style>
 </head>
 
 <body>
 
-<h1>حاسبة المعدل النهائي (/20)</h1>
+<div class="header-tools">
+  <button class="theme-btn" onclick="toggleTheme()">🌓 وضع القراءة</button>
+</div>
+
+<div class="container" id="captureArea">
+  <h1>حاسبة المعدل (/20)</h1>
+
+  <div class="module">
+    <h3>مدخل إلى العلوم القانونية (2)</h3>
+    <div class="input-group">
+      <input type="number" id="m1c" class="grade-input" placeholder="المحاضرة">
+      <input type="number" id="m1t" class="grade-input" placeholder="TD">
+    </div>
+  </div>
+
+  <div class="module">
+    <h3>قانون دستوري (2)</h3>
+    <div class="input-group">
+      <input type="number" id="m2c" class="grade-input" placeholder="المحاضرة">
+      <input type="number" id="m2t" class="grade-input" placeholder="TD">
+    </div>
+  </div>
+
+  <div class="module">
+    <h3>تنظيم قضائي (1)</h3>
+    <div class="input-group">
+      <input type="number" id="m3c" class="grade-input" placeholder="المحاضرة">
+      <input type="number" id="m3t" class="grade-input" placeholder="TD">
+    </div>
+  </div>
+
+  <div class="module"><h3>منهجية (1)</h3><input type="number" id="m4"></div>
+  <div class="module"><h3>تاريخ النظم (1)</h3><input type="number" id="m5"></div>
+  <div class="module"><h3>الإنجليزية (1)</h3><input type="number" id="m6"></div>
+  <div class="module"><h3>المجتمع الدولي (1)</h3><input type="number" id="m7"></div>
+
+  <button onclick="calculate()">احسب المعدل</button>
+  
+  <div class="result" id="resultArea">
+    <div id="statusText">المعدل النهائي</div>
+    <div id="finalScore" class="score-display">0.00</div>
+    <div id="msg"></div>
+  </div>
+</div>
 
 <div class="container">
-
-  <!-- TD + Course, coef 2 -->
-  <div class="module">
-    <h3>مدخل إلى العلوم القانونية</h3>
-    <div class="coef">المعامل: 2</div>
-    <label>علامة المحاضرة</label>
-    <input type="number" id="m1c">
-    <label>علامة الأعمال الموجهة (TD)</label>
-    <input type="number" id="m1t">
-  </div>
-
-  <div class="module">
-    <h3>قانون دستوري</h3>
-    <div class="coef">المعامل: 2</div>
-    <label>علامة المحاضرة</label>
-    <input type="number" id="m2c">
-    <label>علامة الأعمال الموجهة (TD)</label>
-    <input type="number" id="m2t">
-  </div>
-
-  <!-- TD + Course, coef 1 -->
-  <div class="module">
-    <h3>تنظيم قضائي</h3>
-    <div class="coef">المعامل: 1</div>
-    <label>علامة المحاضرة</label>
-    <input type="number" id="m3c">
-    <label>علامة الأعمال الموجهة (TD)</label>
-    <input type="number" id="m3t">
-  </div>
-
-  <!-- Normal modules -->
-  <div class="module">
-    <h3>منهجية العلوم القانونية</h3>
-    <div class="coef">المعامل: 1</div>
-    <input type="number" id="m4">
-  </div>
-
-  <div class="module">
-    <h3>تاريخ النظم</h3>
-    <div class="coef">المعامل: 1</div>
-    <input type="number" id="m5">
-  </div>
-
-  <div class="module">
-    <h3>اللغة الإنجليزية</h3>
-    <div class="coef">المعامل: 1</div>
-    <input type="number" id="m6">
-  </div>
-
-  <div class="module">
-    <h3>المجتمع الدولي</h3>
-    <div class="coef">المعامل: 1</div>
-    <input type="number" id="m7">
-  </div>
-
-  <button onclick="calculate()">احسب المعدل النهائي</button>
-
-  <div class="result" id="result"></div>
-
+    <button id="shareBtn" class="btn-share" onclick="takeScreenshot()">📸 حفظ النتيجة كصورة</button>
 </div>
 
 <script>
-function getValue(id) {
-  const value = document.getElementById(id).value;
-  if (value === "" || value < 0 || value > 20) {
-    alert("الرجاء إدخال علامات صحيحة بين 0 و 20 في جميع الخانات.");
-    throw new Error("Invalid input");
-  }
-  return Number(value);
+// Theme Toggle
+function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme');
+    const target = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', target);
+    localStorage.setItem('theme', target);
 }
+
+// Auto-Load Data & Theme
+window.onload = () => {
+    document.querySelectorAll('input').forEach(i => {
+        i.value = localStorage.getItem(i.id) || "";
+        i.addEventListener('input', () => localStorage.setItem(i.id, i.value));
+    });
+    if(localStorage.getItem('theme') === 'dark') toggleTheme();
+};
 
 function calculate() {
-  try {
-    // Weighted modules first
-    const m1 = (0.6 * getValue("m1c") + 0.4 * getValue("m1t")) * 2;
-    const m2 = (0.6 * getValue("m2c") + 0.4 * getValue("m2t")) * 2;
-    const m3 = (0.6 * getValue("m3c") + 0.4 * getValue("m3t")) * 1;
+    const getV = (id) => document.getElementById(id).value ? parseFloat(document.getElementById(id).value) : 0;
+    
+    const m1 = (getV("m1c")*0.6 + getV("m1t")*0.4) * 2;
+    const m2 = (getV("m2c")*0.6 + getV("m2t")*0.4) * 2;
+    const m3 = (getV("m3c")*0.6 + getV("m3t")*0.4) * 1;
+    const rest = getV("m4") + getV("m5") + getV("m6") + getV("m7");
 
-    const m4 = getValue("m4") * 1;
-    const m5 = getValue("m5") * 1;
-    const m6 = getValue("m6") * 1;
-    const m7 = getValue("m7") * 1;
-
-    const totalWeighted = m1 + m2 + m3 + m4 + m5 + m6 + m7;
-    const totalCoefficients = 9;
-
-    const finalAverage = (totalWeighted/ totalCoefficients).toFixed(2);
-
-    let html = `المعدل النهائي: ${finalAverage} / 20<br>`;
-
-    if (finalAverage >= 10) {
-      html += `<span class="pass">ناجح ✅</span>
-               <div class="message">sa7it yal 5abash 😤🔥</div>`;
+    const total = (m1 + m2 + m3 + rest) / 9;
+    
+    const resArea = document.getElementById("resultArea");
+    const scoreDiv = document.getElementById("finalScore");
+    
+    resArea.style.display = "block";
+    document.getElementById("shareBtn").style.display = "block";
+    scoreDiv.innerText = total.toFixed(2);
+    
+    if(total >= 10) {
+        scoreDiv.className = "score-display pass";
+        document.getElementById("msg").innerHTML = "sa7it yal 5abash 😤🔥";
     } else {
-      html += `<span class="fail">راسب ❌</span>`;
+        scoreDiv.className = "score-display fail";
+        document.getElementById("msg").innerHTML = "راسب ❌";
     }
+}
 
-    document.getElementById("result").innerHTML = html;
-
-  } catch(e) {
-    // Silent stop
-  }
+function takeScreenshot() {
+    const element = document.getElementById("captureArea");
+    html2canvas(element, { backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--bg') }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'my-grades.png';
+        link.href = canvas.toDataURL();
+        link.click();
+    });
 }
 </script>
-
 </body>
-      </html>
+</html>
