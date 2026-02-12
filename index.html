@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>حاسبة المعدل النهائية</title>
-<meta name="google-site-verification" content="7VnCPN-c_Xel-VIxwV3LicJWGOkqx8UpFrS4zFBcDYI" />
-
+  <meta name="google-site-verification" content="7VnCPN-c_Xel-VIxwV3LicJWGOkqx8UpFrS4zFBcDYI" />
 <style>
 :root {
   --primary: #1565c0;
@@ -12,7 +11,7 @@
   --card: #ffffff;
   --text: #333;
   --border: #ddd;
-  --error: #e63946; /* Sharp red for errors */
+  --error: #e63946;
 }
 
 [data-theme="dark"] {
@@ -23,16 +22,25 @@
   --border: #444;
 }
 
+* { box-sizing: border-box; }
+
 body {
   font-family: "Segoe UI", Tahoma, sans-serif;
   background-color: var(--bg);
   color: var(--text);
-  padding: 20px;
+  padding: 15px;
   direction: rtl;
   transition: background 0.3s;
+  margin: 0;
 }
 
-.container { max-width: 550px; margin: auto; }
+.container { 
+  width: 100%; 
+  max-width: 500px; /* Limits width on PC but stays 100% on mobile */
+  margin: auto; 
+}
+
+h1 { font-size: 1.5rem; text-align: center; margin: 20px 0; }
 
 .module {
   background: var(--card);
@@ -41,31 +49,46 @@ body {
   border-radius: 12px;
   border: 2px solid transparent;
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  transition: 0.2s;
 }
 
-/* This triggers when a grade is > 20 */
 .error-border {
   border-color: var(--error) !important;
   background-color: rgba(230, 57, 70, 0.05);
 }
 
-h3 { margin: 0 0 10px 0; font-size: 1rem; color: var(--primary); }
+h3 { margin: 0 0 10px 0; font-size: 0.95rem; color: var(--primary); }
 
-.input-group { display: flex; gap: 10px; }
+/* Improved Input Group for Mobile */
+.input-group { 
+  display: flex; 
+  gap: 8px; 
+}
+
 input {
-  width: 100%; padding: 12px; border-radius: 8px; 
-  border: 1px solid var(--border); background: var(--card);
-  color: var(--text); font-size: 16px; outline: none;
+  width: 100%; 
+  padding: 12px; 
+  border-radius: 8px; 
+  border: 1px solid var(--border); 
+  background: var(--card);
+  color: var(--text); 
+  font-size: 16px; /* Prevents iOS auto-zoom */
+  outline: none;
+  min-width: 0; /* Important for flex items */
 }
 
 input:focus { border-color: var(--primary); }
 
 button {
-  width: 100%; padding: 16px; font-size: 18px;
-  background: var(--primary); color: white;
-  border: none; border-radius: 12px; cursor: pointer;
-  font-weight: bold; margin-top: 15px;
+  width: 100%; 
+  padding: 16px; 
+  font-size: 18px;
+  background: var(--primary); 
+  color: white;
+  border: none; 
+  border-radius: 12px; 
+  cursor: pointer;
+  font-weight: bold; 
+  margin-top: 10px;
 }
 
 #errorToast {
@@ -75,7 +98,7 @@ button {
   border-radius: 8px;
   text-align: center;
   margin-bottom: 15px;
-  display: none; /* Hidden by default */
+  display: none;
   font-weight: bold;
 }
 
@@ -85,13 +108,13 @@ button {
   border: 2px solid var(--primary);
 }
 
-.score { font-size: 3rem; font-weight: 900; margin: 10px 0; }
+.score { font-size: 2.5rem; font-weight: 900; margin: 5px 0; }
 .pass { color: #2d6a4f; }
 .fail { color: var(--error); }
 
-.theme-toggle {
-  text-align: left; margin-bottom: 10px;
-}
+.theme-toggle { margin-bottom: 15px; }
+.theme-toggle button { width: auto; padding: 8px 15px; font-size: 13px; margin: 0; }
+
 </style>
 </head>
 
@@ -99,14 +122,14 @@ button {
 
 <div class="container">
   <div class="theme-toggle">
-    <button style="width:auto; padding:8px 15px; font-size:12px;" onclick="document.documentElement.setAttribute('data-theme', document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark')">🌓 وضع القراءة</button>
+    <button onclick="toggleTheme()">🌓 وضع القراءة</button>
   </div>
 
   <h1>حاسبة المعدل (/20)</h1>
 
   <div id="errorToast">⚠️ خطأ: لا يمكن إدخال علامة أكبر من 20!</div>
 
-  <div class="module" id="box1">
+  <div class="module">
     <h3>مدخل إلى العلوم القانونية (2)</h3>
     <div class="input-group">
       <input type="number" id="m1c" placeholder="المحاضرة" oninput="validate(this)">
@@ -114,7 +137,7 @@ button {
     </div>
   </div>
 
-  <div class="module" id="box2">
+  <div class="module">
     <h3>قانون دستوري (2)</h3>
     <div class="input-group">
       <input type="number" id="m2c" placeholder="المحاضرة" oninput="validate(this)">
@@ -122,7 +145,7 @@ button {
     </div>
   </div>
 
-  <div class="module" id="box3">
+  <div class="module">
     <h3>تنظيم قضائي (1)</h3>
     <div class="input-group">
       <input type="number" id="m3c" placeholder="المحاضرة" oninput="validate(this)">
@@ -130,34 +153,37 @@ button {
     </div>
   </div>
 
-  <div class="module"><h3>منهجية (1)</h3><input type="number" id="m4" oninput="validate(this)"></div>
-  <div class="module"><h3>تاريخ النظم (1)</h3><input type="number" id="m5" oninput="validate(this)"></div>
-  <div class="module"><h3>الإنجليزية (1)</h3><input type="number" id="m6" oninput="validate(this)"></div>
-  <div class="module"><h3>المجتمع الدولي (1)</h3><input type="number" id="m7" oninput="validate(this)"></div>
+  <div class="module"><h3>منهجية (1)</h3><input type="number" id="m4" placeholder="العلامة" oninput="validate(this)"></div>
+  <div class="module"><h3>تاريخ النظم (1)</h3><input type="number" id="m5" placeholder="العلامة" oninput="validate(this)"></div>
+  <div class="module"><h3>الإنجليزية (1)</h3><input type="number" id="m6" placeholder="العلامة" oninput="validate(this)"></div>
+  <div class="module"><h3>المجتمع الدولي (1)</h3><input type="number" id="m7" placeholder="العلامة" oninput="validate(this)"></div>
 
   <button onclick="calculate()">احسب الآن</button>
   
   <div class="result" id="resultArea">
     <div id="statusText">معدلك هو:</div>
     <div id="finalScore" class="score">0.00</div>
-    <div id="msg" style="font-size: 1.2rem;"></div>
+    <div id="msg"></div>
   </div>
 </div>
 
 <script>
-// Real-time validation
+function toggleTheme() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+}
+
 function validate(input) {
     const val = parseFloat(input.value);
     const toast = document.getElementById("errorToast");
+    const module = input.closest('.module');
     
     if (val > 20) {
-        input.parentElement.closest('.module').classList.add('error-border');
+        module.classList.add('error-border');
         toast.style.display = "block";
     } else {
-        input.parentElement.closest('.module').classList.remove('error-border');
-        // Hide toast only if NO other inputs have errors
-        const errors = document.querySelectorAll('.error-border');
-        if (errors.length === 0) toast.style.display = "none";
+        module.classList.remove('error-border');
+        if (document.querySelectorAll('.error-border').length === 0) toast.style.display = "none";
     }
 }
 
@@ -165,17 +191,13 @@ function calculate() {
     const inputs = document.querySelectorAll('input[type="number"]');
     let tooHigh = false;
 
-    // Final check before math
-    inputs.forEach(i => {
-        if (parseFloat(i.value) > 20) tooHigh = true;
-    });
+    inputs.forEach(i => { if (parseFloat(i.value) > 20) tooHigh = true; });
 
     if (tooHigh) {
-        alert("يرجى تصحيح العلامات التي تتجاوز 20 أولاً!");
+        alert("يرجى تصحيح العلامات التي تتجاوز 20!");
         return;
     }
 
-    // Math Logic
     const getV = (id) => {
         const v = document.getElementById(id).value;
         return v === "" ? 0 : parseFloat(v);
@@ -187,7 +209,6 @@ function calculate() {
     const rest = getV("m4") + getV("m5") + getV("m6") + getV("m7");
 
     const total = (m1 + m2 + m3 + rest) / 9;
-    
     const resArea = document.getElementById("resultArea");
     const scoreDiv = document.getElementById("finalScore");
     
@@ -197,12 +218,14 @@ function calculate() {
     if(total >= 10) {
         scoreDiv.className = "score pass";
         document.getElementById("msg").innerHTML = "ناجح! sa7it yal 5abash 😤🔥";
+        // Confetti Burst!
+        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
     } else {
         scoreDiv.className = "score fail";
         document.getElementById("msg").innerHTML = "للأسف، المعدل أقل من 10 ❌";
     }
 
-    resArea.scrollIntoView({behavior: "smooth"});
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
 }
 </script>
 </body>
