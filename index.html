@@ -129,24 +129,44 @@ input:focus { border-color: var(--primary); }
 </div>
 
   </div>  
-</div>  <script>  
-const inputs = document.querySelectorAll('input');  
-let currentAvg = 0;  
-  
-window.onload = () => {  
-    inputs.forEach(i => i.value = localStorage.getItem(i.id) || i.value);  
-    calculate();  
-};  
-  
-inputs.forEach(input => {  
-    input.addEventListener('input', () => {  
-        const val = parseFloat(input.value);  
-        if(val > 20 || val < 0) { document.getElementById('toast').style.display='block'; return; }  
-        document.getElementById('toast').style.display='none';  
-        localStorage.setItem(input.id, input.value);  
-        calculate();  
-    });  
-});  
+</div>  <script>
+const inputs = document.querySelectorAll('input');
+let currentAvg = 0;
+
+window.onload = () => {
+    inputs.forEach(i => i.value = localStorage.getItem(i.id) || i.value);
+    calculate();
+};
+
+// --- PASTE THIS NEW BLOCK STARTING HERE ---
+inputs.forEach(input => {
+    input.addEventListener('input', () => {
+        const val = parseFloat(input.value);
+        
+        // Validation check
+        if(val > 20 || val < 0) { 
+            input.style.borderColor = "var(--error)"; // Turn border red
+            input.classList.add('invalid');
+            document.getElementById('toast').style.display='block'; 
+            return; // STOP! Don't calculate if grade is impossible
+        } else {
+            input.style.borderColor = "var(--border)";
+            input.classList.remove('invalid');
+            
+            const remainingErrors = document.querySelectorAll('input.invalid').length;
+            if(remainingErrors === 0) document.getElementById('toast').style.display='none';
+        }
+
+        // Only save and calculate if valid
+        localStorage.setItem(input.id, input.value);
+        calculate();
+    });
+});
+// --- END OF NEW BLOCK ---
+
+function calculate() {
+    // ... leave the rest of the calculate function as it was ...
+}
   
 function calculate() {  
     const getV = (id) => {  
