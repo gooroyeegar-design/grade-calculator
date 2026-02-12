@@ -1,10 +1,11 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
 <meta name="google-site-verification" content="7VnCPN-c_Xel-VIxwV3LicJWGOkqx8UpFrS4zFBcDYI" />
-<title>حاسبة المعدل: النسخة النهائية</title>
+<title>حاسبة المعدل الذكية | Smart Grade Calc</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 <style>
@@ -12,141 +13,209 @@
   --primary: #2563eb; --bg: #f8fafc; --card: #ffffff;
   --text-main: #0f172a; --text-muted: #64748b;
   --border: #e2e8f0; --success: #10b981; --accent: #8b5cf6;
+  --error: #ef4444;
 }
 [data-theme="dark"] {
   --bg: #020617; --card: #1e293b; --text-main: #f8fafc;
-  --text-muted: #94a3b8; --border: #334155;
+  --text-muted: #94a3b8; --border: #334155; --primary: #3b82f6;
 }
+
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
 body {
-  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   background-color: var(--bg); color: var(--text-main);
   direction: rtl; margin: 0; padding: 15px;
+  transition: background-color 0.3s ease;
 }
+
 .container { width: 100%; max-width: 480px; margin: 0 auto; padding-bottom: 50px; }
 
-/* Goal Setter Section */
+/* Header & Controls */
+.top-nav { display: flex; justify-content: space-between; margin-bottom: 20px; }
+.btn-ui { 
+  background: var(--card); border: 1px solid var(--border); padding: 10px 16px; 
+  border-radius: 14px; cursor: pointer; color: var(--text-main); font-size: 0.85rem;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: 0.2s;
+}
+.btn-ui:active { transform: scale(0.95); }
+
+/* Goal Card */
 .goal-card {
   background: linear-gradient(135deg, #6366f1, #a855f7);
-  color: white; padding: 20px; border-radius: 20px;
-  margin-bottom: 20px; box-shadow: 0 10px 15px -3px rgba(139, 92, 246, 0.3);
+  color: white; padding: 24px; border-radius: 24px;
+  margin-bottom: 25px; box-shadow: 0 12px 20px -5px rgba(99, 102, 241, 0.4);
 }
-.goal-input-group { display: flex; align-items: center; gap: 15px; margin-top: 10px; }
+.goal-input-group { display: flex; align-items: center; gap: 15px; margin-top: 12px; }
 .goal-input-group input { 
-  width: 80px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);
-  color: white; text-align: center; font-weight: bold; padding: 8px; border-radius: 8px;
+  width: 90px; background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.3);
+  color: white; text-align: center; font-weight: 800; padding: 10px; border-radius: 12px; font-size: 1.2rem;
 }
 
+/* Module Cards */
 .module-card {
-  background: var(--card); padding: 18px; margin-bottom: 16px;
-  border-radius: 20px; border: 1px solid var(--border);
-  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+  background: var(--card); padding: 20px; margin-bottom: 18px;
+  border-radius: 22px; border: 1px solid var(--border);
+  box-shadow: 0 4px 10px -2px rgba(0,0,0,0.05);
+  transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-.badge { background: var(--bg); padding: 3px 10px; border-radius: 8px; font-size: 0.7rem; color: var(--primary); font-weight: bold; }
+.module-card:focus-within { border-color: var(--primary); transform: translateY(-3px); box-shadow: 0 15px 20px -10px rgba(0,0,0,0.1); }
 
-.input-row { display: flex; gap: 12px; }
+.card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.subject-name { font-weight: 700; font-size: 1.05rem; letter-spacing: -0.01em; }
+.badge { background: var(--bg); padding: 4px 12px; border-radius: 10px; font-size: 0.75rem; color: var(--primary); font-weight: 800; }
+
+.input-row { display: flex; gap: 15px; }
 .field { flex: 1; }
-label { display: block; font-size: 0.7rem; color: var(--text-muted); margin-bottom: 5px; }
+label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
 
 input {
-  width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid var(--border);
+  width: 100%; padding: 14px; border-radius: 14px; border: 1.5px solid var(--border);
   background: var(--card); color: var(--text-main); font-size: 1rem; outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
-input:focus { border-color: var(--primary); }
+input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
+input.invalid { border-color: var(--error); background: rgba(239, 68, 68, 0.05); }
 
+/* Result Box with Animation */
 .result-box {
-  background: var(--primary); color: white; border-radius: 24px; padding: 30px;
-  text-align: center; margin-top: 25px; display: none;
+  background: var(--primary); color: white; border-radius: 28px; padding: 35px;
+  text-align: center; margin-top: 30px; display: none;
+  box-shadow: 0 20px 30px -10px rgba(37, 99, 235, 0.4);
 }
-.avg-number { font-size: 4rem; font-weight: 900; margin: 5px 0; }
-.target-msg { 
-    background: rgba(0,0,0,0.1); padding: 10px; border-radius: 12px; 
-    font-size: 0.85rem; margin-top: 15px; border-right: 4px solid white; text-align: right;
+.fade-in-up { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-.btn-ui { background: var(--card); border: 1px solid var(--border); padding: 8px 14px; border-radius: 12px; cursor: pointer; color: var(--text-main); font-size: 0.8rem; }
-.btn-download {
-  width: 100%; background: #0f172a; color: white; border: none; padding: 15px;
-  border-radius: 15px; font-weight: bold; margin-top: 15px; cursor: pointer; display: none;
+.avg-number { font-size: 4.5rem; font-weight: 900; margin: 5px 0; line-height: 1; }
+.target-msg { 
+    background: rgba(0,0,0,0.15); padding: 15px; border-radius: 16px; 
+    font-size: 0.9rem; margin-top: 20px; border-right: 5px solid white; text-align: right;
+    line-height: 1.4;
 }
-[data-theme="dark"] .btn-download { background: #334155; }
+
+.btn-download {
+  width: 100%; background: var(--text-main); color: var(--card); border: none; padding: 18px;
+  border-radius: 18px; font-weight: 800; margin-top: 20px; cursor: pointer; transition: 0.2s;
+  font-size: 1rem;
+}
+.btn-download:active { transform: scale(0.98); }
+
+#toast {
+  position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+  background: var(--error); color: white; padding: 12px 25px; border-radius: 50px;
+  font-weight: bold; font-size: 0.9rem; z-index: 2000; display: none;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2); animation: slideDown 0.3s ease;
+}
+@keyframes slideDown { from { top: -50px; } to { top: 20px; } }
 </style>
 </head>
 
 <body>
 
+<div id="toast" role="alert">⚠️ الرجاء إدخال علامة بين 0 و 20</div>
+
 <div class="container">
-  <div style="display:flex; justify-content: space-between; margin-bottom: 15px;">
-    <button class="btn-ui" onclick="toggleMode()">🌓 وضع القراءة</button>
-    <button class="btn-ui" onclick="clearAll()">🔄 تفريغ</button>
-  </div>
+  <nav class="top-nav">
+    <button class="btn-ui" onclick="toggleMode()" aria-label="تبديل الوضع">🌓 وضع القراءة</button>
+    <button class="btn-ui" onclick="clearAll()" aria-label="مسح جميع البيانات">🔄 تفريغ</button>
+  </nav>
 
   <div class="goal-card">
-    <div style="font-weight: bold; font-size: 0.9rem;">🎯 حدد هدفك (المعدل المرغوب)</div>
+    <div style="font-weight: 700; font-size: 1rem;">🎯 المعدل المرغوب</div>
     <div class="goal-input-group">
-      <input type="number" id="targetGoal" value="10.00" step="0.1" oninput="calculate()">
-      <span style="font-size: 0.8rem; opacity: 0.9;">أدخل المعدل الذي تطمح للوصول إليه</span>
+      <input type="number" id="targetGoal" value="10.00" min="0" max="20" step="0.1" aria-label="الهدف">
+      <span style="font-size: 0.9rem; opacity: 0.9; font-weight: 500;">حدد هدفك لمشاهدة التوقعات الذكية</span>
     </div>
   </div>
 
-  <div id="app">
+  <div id="calculator-form">
     <div class="module-card">
-      <div class="card-head"><b>مدخل للعلوم القانونية</b> <span class="badge">معامل 2</span></div>
+      <div class="card-head"><span class="subject-name">مدخل للعلوم القانونية</span> <span class="badge">معامل 2</span></div>
       <div class="input-row">
-        <div class="field"><label>محاضرة</label><input type="number" id="m1c" placeholder="0.00"></div>
-        <div class="field"><label>TD</label><input type="number" id="m1t" placeholder="0.00"></div>
+        <div class="field"><label>محاضرة (60%)</label><input type="number" id="m1c" placeholder="0.00" min="0" max="20"></div>
+        <div class="field"><label>أعمال (40%)</label><input type="number" id="m1t" placeholder="0.00" min="0" max="20"></div>
       </div>
     </div>
+    
     <div class="module-card">
-      <div class="card-head"><b>قانون دستوري</b> <span class="badge">معامل 2</span></div>
+      <div class="card-head"><span class="subject-name">قانون دستوري</span> <span class="badge">معامل 2</span></div>
       <div class="input-row">
-        <div class="field"><label>محاضرة</label><input type="number" id="m2c" placeholder="0.00"></div>
-        <div class="field"><label>TD</label><input type="number" id="m2t" placeholder="0.00"></div>
+        <div class="field"><label>محاضرة (60%)</label><input type="number" id="m2c" placeholder="0.00" min="0" max="20"></div>
+        <div class="field"><label>أعمال (40%)</label><input type="number" id="m2t" placeholder="0.00" min="0" max="20"></div>
       </div>
     </div>
+
     <div class="module-card">
-        <div class="card-head"><b>تنظيم قضائي</b> <span class="badge">معامل 1</span></div>
+        <div class="card-head"><span class="subject-name">تنظيم قضائي</span> <span class="badge">معامل 1</span></div>
         <div class="input-row">
-          <div class="field"><label>محاضرة</label><input type="number" id="m3c" placeholder="0.00"></div>
-          <div class="field"><label>TD</label><input type="number" id="m3t" placeholder="0.00"></div>
+          <div class="field"><label>محاضرة (60%)</label><input type="number" id="m3c" placeholder="0.00" min="0" max="20"></div>
+          <div class="field"><label>أعمال (40%)</label><input type="number" id="m3t" placeholder="0.00" min="0" max="20"></div>
         </div>
     </div>
-    <div class="module-card"><b>منهجية</b> <input type="number" id="m4" placeholder="العلامة"></div>
-    <div class="module-card"><b>تاريخ النظم</b> <input type="number" id="m5" placeholder="العلامة"></div>
-    <div class="module-card"><b>الإنجليزية</b> <input type="number" id="m6" placeholder="العلامة"></div>
-    <div class="module-card"><b>المجتمع الدولي</b> <input type="number" id="m7" placeholder="العلامة"></div>
+
+    <div class="module-card">
+        <div class="card-head"><span class="subject-name">منهجية</span> <span class="badge">معامل 1</span></div>
+        <input type="number" id="m4" placeholder="العلامة النهائية" min="0" max="20">
+    </div>
+
+    <div class="module-card">
+        <div class="card-head"><span class="subject-name">تاريخ النظم</span> <span class="badge">معامل 1</span></div>
+        <input type="number" id="m5" placeholder="العلامة النهائية" min="0" max="20">
+    </div>
+
+    <div class="module-card">
+        <div class="card-head"><span class="subject-name">الإنجليزية</span> <span class="badge">معامل 1</span></div>
+        <input type="number" id="m6" placeholder="العلامة النهائية" min="0" max="20">
+    </div>
+
+    <div class="module-card">
+        <div class="card-head"><span class="subject-name">المجتمع الدولي</span> <span class="badge">معامل 1</span></div>
+        <input type="number" id="m7" placeholder="العلامة النهائية" min="0" max="20">
+    </div>
   </div>
 
-  <div class="result-box" id="resBox">
-    <div id="statusTxt" style="font-weight:bold">المعدل التقديري الحالي:</div>
+  <div class="result-box fade-in-up" id="resBox">
+    <div id="statusTxt" style="font-weight:800; font-size: 1.1rem; letter-spacing: 0.05em;">المعدل الحالي</div>
     <div class="avg-number" id="avgOut">0.00</div>
     <div id="targetPrediction" class="target-msg" style="display:none;"></div>
   </div>
 
-  <button class="btn-download" id="downloadBtn" onclick="downloadReport()">📥 تحميل ملخص النتيجة (TXT)</button>
+  <button class="btn-download" id="downloadBtn" onclick="downloadReport()" style="display:none;">📥 تحميل ملخص الدرجات (TXT)</button>
 </div>
 
 <script>
 const inputs = document.querySelectorAll('input');
-let currentSummary = "";
+const toast = document.getElementById('toast');
+let reportText = "";
 
 window.onload = () => {
     inputs.forEach(i => i.value = localStorage.getItem(i.id) || i.value);
-    calculate();
+    if(localStorage.getItem('theme') === 'dark') toggleMode();
+    calculate(false);
 };
 
 inputs.forEach(input => {
     input.addEventListener('input', () => {
+        const val = parseFloat(input.value);
+        if(val > 20 || val < 0) {
+            input.classList.add('invalid');
+            toast.style.display = 'block';
+        } else {
+            input.classList.remove('invalid');
+            if(!document.querySelector('.invalid')) toast.style.display = 'none';
+        }
         localStorage.setItem(input.id, input.value);
-        calculate();
+        calculate(true);
     });
 });
 
-function calculate() {
+function calculate(isLive) {
     const getV = (id) => {
         const val = document.getElementById(id).value;
-        return val === "" ? null : parseFloat(val);
+        return (val === "" || isNaN(val)) ? null : parseFloat(val);
     };
 
     const modules = [
@@ -172,7 +241,11 @@ function calculate() {
     
     if(filledCoefs === 0) { resBox.style.display = 'none'; dlBtn.style.display = 'none'; return; }
     
-    resBox.style.display = 'block';
+    if(resBox.style.display === 'none') {
+        resBox.style.display = 'block';
+        resBox.classList.add('fade-in-up');
+    }
+    
     dlBtn.style.display = 'block';
     document.getElementById('avgOut').innerText = finalAvg;
 
@@ -183,39 +256,37 @@ function calculate() {
     if(missingCoefs > 0) {
         const needed = ((goal * totalCoefficients) - totalPoints) / missingCoefs;
         predictDiv.style.display = 'block';
-        if(needed <= 0) strategyTxt = "لقد حققت هدفك بالفعل! واصل لرفع المعدل.";
-        else if(needed > 20) strategyTxt = "الهدف صعب، تحتاج لأكثر من 20 في المواد المتبقية.";
+        if(needed <= 0) strategyTxt = "لقد تجاوزت هدفك بالفعل! واصل لرفع معدلك للأعلى. ✨";
+        else if(needed > 20) strategyTxt = "الوصول لهذا الهدف يتطلب أكثر من 20 في المواد المتبقية. ركز على تقليص الفجوة! 🚩";
         else strategyTxt = `لتحقيق هدفك (${goal})، تحتاج لمعدل ${needed.toFixed(2)} في المواد المتبقية.`;
     } else {
         predictDiv.style.display = 'none';
-        if(finalAvg >= goal) confetti({ particleCount: 30, spread: 60 });
+        if(parseFloat(finalAvg) >= goal && isLive) confetti({ particleCount: 40, spread: 70, origin: { y: 0.8 } });
     }
     predictDiv.innerText = strategyTxt;
 
-    // Prepare text for download
-    currentSummary = `ملخص المعدل الجامعي\n`;
-    currentSummary += `--------------------------\n`;
-    currentSummary += `المعدل النهائي: ${finalAvg} / 20\n`;
-    currentSummary += `الهدف المحدد: ${goal}\n`;
-    if(strategyTxt) currentSummary += `خطة العمل: ${strategyTxt}\n`;
-    currentSummary += `--------------------------\n`;
-    currentSummary += `تم الاستخراج في: ${new Date().toLocaleString('ar-DZ')}`;
+    reportText = `تقرير المعدل الجامعي\n====================\n`;
+    reportText += `المعدل الحالي: ${finalAvg} / 20\nالهدف المخطط له: ${goal}\n`;
+    if(strategyTxt) reportText += `توقعات النجاح: ${strategyTxt}\n`;
+    reportText += `====================\nالتاريخ: ${new Date().toLocaleDateString('ar-DZ')}`;
 }
 
 function downloadReport() {
-    const blob = new Blob([currentSummary], { type: "text/plain;charset=utf-8" });
+    const blob = new Blob([reportText], { type: "text/plain;charset=utf-8" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = "grade_report.txt";
+    link.download = "MyGradeReport.txt";
     link.click();
 }
 
 function toggleMode() {
-    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    const root = document.documentElement;
+    const isDark = root.getAttribute('data-theme') === 'dark';
+    root.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    localStorage.setItem('theme', isDark ? 'light' : 'dark');
 }
 
-function clearAll() { if(confirm('تفريغ؟')) { localStorage.clear(); location.reload(); } }
+function clearAll() { if(confirm('هل أنت متأكد من رغبتك في مسح جميع البيانات؟')) { localStorage.clear(); location.reload(); } }
 </script>
 </body>
 </html>
