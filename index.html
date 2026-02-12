@@ -2,9 +2,8 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>حاسبة المعدل الذكية</title>
+<title>حاسبة المعدل النهائية</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <style>
 :root {
@@ -12,8 +11,8 @@
   --bg: #f8f9fa;
   --card: #ffffff;
   --text: #333;
-  --border: #eee;
-  --error: #ff5252;
+  --border: #ddd;
+  --error: #e63946; /* Sharp red for errors */
 }
 
 [data-theme="dark"] {
@@ -21,7 +20,7 @@
   --bg: #121212;
   --card: #1e1e1e;
   --text: #e0e0e0;
-  --border: #333;
+  --border: #444;
 }
 
 body {
@@ -30,157 +29,157 @@ body {
   color: var(--text);
   padding: 20px;
   direction: rtl;
-  transition: 0.3s;
+  transition: background 0.3s;
 }
 
-.header-tools { display: flex; justify-content: space-between; max-width: 600px; margin: 0 auto 20px; }
-.theme-btn { background: var(--card); border: 1px solid var(--border); padding: 8px 15px; border-radius: 20px; cursor: pointer; color: var(--text); }
-
-.container { max-width: 600px; margin: auto; }
+.container { max-width: 550px; margin: auto; }
 
 .module {
   background: var(--card);
-  padding: 18px;
-  margin-bottom: 15px;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  border: 1px solid var(--border);
-  transition: border-color 0.3s;
+  padding: 15px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transition: 0.2s;
 }
 
-.invalid-input { border: 2px solid var(--error) !important; animation: shake 0.4s; }
-
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  75% { transform: translateX(5px); }
+/* This triggers when a grade is > 20 */
+.error-border {
+  border-color: var(--error) !important;
+  background-color: rgba(230, 57, 70, 0.05);
 }
 
-.input-group { display: flex; gap: 10px; margin-top: 5px; }
+h3 { margin: 0 0 10px 0; font-size: 1rem; color: var(--primary); }
+
+.input-group { display: flex; gap: 10px; }
 input {
-  width: 100%; padding: 12px; border-radius: 10px; 
-  border: 2px solid var(--border); background: var(--card);
+  width: 100%; padding: 12px; border-radius: 8px; 
+  border: 1px solid var(--border); background: var(--card);
   color: var(--text); font-size: 16px; outline: none;
 }
 
+input:focus { border-color: var(--primary); }
+
 button {
-  width: 100%; padding: 16px; font-size: 17px;
+  width: 100%; padding: 16px; font-size: 18px;
   background: var(--primary); color: white;
   border: none; border-radius: 12px; cursor: pointer;
-  font-weight: bold; margin-top: 10px;
+  font-weight: bold; margin-top: 15px;
+}
+
+#errorToast {
+  background: var(--error);
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+  margin-bottom: 15px;
+  display: none; /* Hidden by default */
+  font-weight: bold;
 }
 
 .result {
-  margin-top: 25px; background: var(--card); padding: 25px;
-  border-radius: 20px; text-align: center; display: none;
+  margin-top: 20px; background: var(--card); padding: 20px;
+  border-radius: 15px; text-align: center; display: none;
   border: 2px solid var(--primary);
 }
 
-.error-msg {
-  color: var(--error);
-  font-weight: bold;
-  margin-top: 10px;
-  display: none;
-  text-align: center;
-}
+.score { font-size: 3rem; font-weight: 900; margin: 10px 0; }
+.pass { color: #2d6a4f; }
+.fail { color: var(--error); }
 
-.score-display { font-size: 3rem; font-weight: 800; }
-.pass { color: #4caf50; }
-.fail { color: #f44336; }
+.theme-toggle {
+  text-align: left; margin-bottom: 10px;
+}
 </style>
 </head>
 
 <body>
 
-<div class="header-tools">
-  <button class="theme-btn" onclick="toggleTheme()">🌓 وضع القراءة</button>
-</div>
+<div class="container">
+  <div class="theme-toggle">
+    <button style="width:auto; padding:8px 15px; font-size:12px;" onclick="document.documentElement.setAttribute('data-theme', document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark')">🌓 وضع القراءة</button>
+  </div>
 
-<div class="container" id="captureArea">
   <h1>حاسبة المعدل (/20)</h1>
 
-  <div class="module">
+  <div id="errorToast">⚠️ خطأ: لا يمكن إدخال علامة أكبر من 20!</div>
+
+  <div class="module" id="box1">
     <h3>مدخل إلى العلوم القانونية (2)</h3>
     <div class="input-group">
-      <input type="number" id="m1c" placeholder="المحاضرة" max="20">
-      <input type="number" id="m1t" placeholder="TD" max="20">
+      <input type="number" id="m1c" placeholder="المحاضرة" oninput="validate(this)">
+      <input type="number" id="m1t" placeholder="TD" oninput="validate(this)">
     </div>
   </div>
 
-  <div class="module">
+  <div class="module" id="box2">
     <h3>قانون دستوري (2)</h3>
     <div class="input-group">
-      <input type="number" id="m2c" placeholder="المحاضرة" max="20">
-      <input type="number" id="m2t" placeholder="TD" max="20">
+      <input type="number" id="m2c" placeholder="المحاضرة" oninput="validate(this)">
+      <input type="number" id="m2t" placeholder="TD" oninput="validate(this)">
     </div>
   </div>
 
-  <div class="module">
+  <div class="module" id="box3">
     <h3>تنظيم قضائي (1)</h3>
     <div class="input-group">
-      <input type="number" id="m3c" placeholder="المحاضرة" max="20">
-      <input type="number" id="m3t" placeholder="TD" max="20">
+      <input type="number" id="m3c" placeholder="المحاضرة" oninput="validate(this)">
+      <input type="number" id="m3t" placeholder="TD" oninput="validate(this)">
     </div>
   </div>
 
-  <div class="module"><h3>منهجية (1)</h3><input type="number" id="m4" max="20"></div>
-  <div class="module"><h3>تاريخ النظم (1)</h3><input type="number" id="m5" max="20"></div>
-  <div class="module"><h3>الإنجليزية (1)</h3><input type="number" id="m6" max="20"></div>
-  <div class="module"><h3>المجتمع الدولي (1)</h3><input type="number" id="m7" max="20"></div>
+  <div class="module"><h3>منهجية (1)</h3><input type="number" id="m4" oninput="validate(this)"></div>
+  <div class="module"><h3>تاريخ النظم (1)</h3><input type="number" id="m5" oninput="validate(this)"></div>
+  <div class="module"><h3>الإنجليزية (1)</h3><input type="number" id="m6" oninput="validate(this)"></div>
+  <div class="module"><h3>المجتمع الدولي (1)</h3><input type="number" id="m7" oninput="validate(this)"></div>
 
-  <div id="validationError" class="error-msg">⚠️ خطأ: لا يمكن أن تكون العلامة أكثر من 20!</div>
-  
-  <button onclick="calculate()">احسب المعدل</button>
+  <button onclick="calculate()">احسب الآن</button>
   
   <div class="result" id="resultArea">
-    <div id="statusText">المعدل النهائي</div>
-    <div id="finalScore" class="score-display">0.00</div>
-    <div id="msg"></div>
+    <div id="statusText">معدلك هو:</div>
+    <div id="finalScore" class="score">0.00</div>
+    <div id="msg" style="font-size: 1.2rem;"></div>
   </div>
 </div>
 
 <script>
-function toggleTheme() {
-    const target = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', target);
-    localStorage.setItem('theme', target);
+// Real-time validation
+function validate(input) {
+    const val = parseFloat(input.value);
+    const toast = document.getElementById("errorToast");
+    
+    if (val > 20) {
+        input.parentElement.closest('.module').classList.add('error-border');
+        toast.style.display = "block";
+    } else {
+        input.parentElement.closest('.module').classList.remove('error-border');
+        // Hide toast only if NO other inputs have errors
+        const errors = document.querySelectorAll('.error-border');
+        if (errors.length === 0) toast.style.display = "none";
+    }
 }
-
-window.onload = () => {
-    document.querySelectorAll('input').forEach(i => {
-        i.value = localStorage.getItem(i.id) || "";
-        i.addEventListener('input', () => {
-            localStorage.setItem(i.id, i.value);
-            // Remove error styling as they type
-            i.classList.remove('invalid-input');
-            document.getElementById("validationError").style.display = "none";
-        });
-    });
-    if(localStorage.getItem('theme') === 'dark') toggleTheme();
-};
 
 function calculate() {
     const inputs = document.querySelectorAll('input[type="number"]');
-    let hasError = false;
+    let tooHigh = false;
 
-    // Validation Loop
-    inputs.forEach(input => {
-        const val = parseFloat(input.value);
-        if (val > 20) {
-            input.classList.add('invalid-input');
-            hasError = true;
-        } else {
-            input.classList.remove('invalid-input');
-        }
+    // Final check before math
+    inputs.forEach(i => {
+        if (parseFloat(i.value) > 20) tooHigh = true;
     });
 
-    if (hasError) {
-        document.getElementById("validationError").style.display = "block";
-        document.getElementById("resultArea").style.display = "none";
-        return; // Stop calculation
+    if (tooHigh) {
+        alert("يرجى تصحيح العلامات التي تتجاوز 20 أولاً!");
+        return;
     }
 
-    const getV = (id) => document.getElementById(id).value ? parseFloat(document.getElementById(id).value) : 0;
+    // Math Logic
+    const getV = (id) => {
+        const v = document.getElementById(id).value;
+        return v === "" ? 0 : parseFloat(v);
+    };
     
     const m1 = (getV("m1c")*0.6 + getV("m1t")*0.4) * 2;
     const m2 = (getV("m2c")*0.6 + getV("m2t")*0.4) * 2;
@@ -196,12 +195,14 @@ function calculate() {
     scoreDiv.innerText = total.toFixed(2);
     
     if(total >= 10) {
-        scoreDiv.className = "score-display pass";
-        document.getElementById("msg").innerHTML = "sa7it yal 5abash 😤🔥";
+        scoreDiv.className = "score pass";
+        document.getElementById("msg").innerHTML = "ناجح! sa7it yal 5abash 😤🔥";
     } else {
-        scoreDiv.className = "score-display fail";
-        document.getElementById("msg").innerHTML = "راسب ❌";
+        scoreDiv.className = "score fail";
+        document.getElementById("msg").innerHTML = "للأسف، المعدل أقل من 10 ❌";
     }
+
+    resArea.scrollIntoView({behavior: "smooth"});
 }
 </script>
 </body>
