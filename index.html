@@ -3,223 +3,285 @@
 <head>
 <meta charset="UTF-8">
 <meta name="google-site-verification" content="7VnCPN-c_Xel-VIxwV3LicJWGOkqx8UpFrS4zFBcDYI" />
-<title>حاسبة المعدل النهائية</title>
-
+<title> حاسبة المعدل الجامعي تخصص حقوق</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 <style>
 :root {
-  --primary: #1565c0;
-  --bg: #f8f9fa;
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --bg: #f1f5f9;
   --card: #ffffff;
-  --text: #333;
-  --border: #ddd;
-  --error: #e63946;
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+  --success: #10b981;
+  --error: #ef4444;
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
 }
 
 [data-theme="dark"] {
-  --primary: #64b5f6;
-  --bg: #121212;
-  --card: #1e1e1e;
-  --text: #e0e0e0;
-  --border: #444;
+  --bg: #0f172a;
+  --card: #1e293b;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --border: #334155;
+  --primary: #3b82f6;
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 body {
-  font-family: "Segoe UI", Tahoma, sans-serif;
+  font-family: 'Segoe UI', system-ui, sans-serif;
   background-color: var(--bg);
-  color: var(--text);
-  padding: 15px;
+  color: var(--text-main);
   direction: rtl;
   margin: 0;
-  /* Prevents the "desktop" zoom out */
-  width: 100%;
+  padding: 15px;
+  line-height: 1.5;
 }
 
-.container { 
-  width: 100%; 
-  max-width: 480px; /* Limits width on large screens, stays full on mobile */
-  margin: auto; 
+.container { width: 100%; max-width: 480px; margin: 0 auto; }
+
+/* Header & Tools */
+header { text-align: center; margin-bottom: 25px; margin-top: 10px; }
+h1 { font-size: 1.75rem; font-weight: 800; margin: 0; color: var(--primary); }
+.tagline { color: var(--text-muted); font-size: 0.9rem; }
+
+.top-bar { display: flex; justify-content: space-between; margin-bottom: 15px; }
+.icon-btn { 
+  background: var(--card); border: 1px solid var(--border); 
+  padding: 8px 12px; border-radius: 10px; cursor: pointer;
+  color: var(--text-main); font-size: 0.85rem; font-weight: 600;
 }
 
-h1 { font-size: 1.4rem; text-align: center; margin: 15px 0; color: var(--text); }
-
+/* Module Card Style */
 .module {
   background: var(--card);
-  padding: 15px;
-  margin-bottom: 12px;
-  border-radius: 12px;
-  border: 2px solid transparent;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+  padding: 16px;
+  margin-bottom: 16px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  transition: transform 0.2s, border-color 0.2s;
 }
 
-.error-border { border-color: var(--error) !important; background: rgba(230, 57, 70, 0.05); }
+.module:focus-within { border-color: var(--primary); transform: translateY(-2px); }
 
-h3 { margin: 0 0 10px 0; font-size: 0.9rem; color: var(--primary); font-weight: 600; }
+.module-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.module-title { font-weight: 700; font-size: 1rem; }
+.coef-badge { background: var(--bg); color: var(--text-muted); padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; }
 
-.input-group { display: flex; gap: 8px; }
+/* Inputs */
+.input-grid { display: flex; gap: 12px; }
+.input-wrapper { flex: 1; }
+label { display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; padding-right: 4px; }
 
 input {
-  width: 100%; 
-  padding: 14px; /* Bigger touch area for mobile */
-  border-radius: 10px; 
-  border: 1px solid var(--border); 
-  background: var(--card);
-  color: var(--text); 
-  font-size: 16px; /* 16px prevents iOS from auto-zooming on focus */
-  outline: none;
-  min-width: 0;
+  width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border);
+  background: var(--card); color: var(--text-main); font-size: 1rem; outline: none;
+  transition: all 0.2s;
 }
 
-button {
-  width: 100%; 
-  padding: 16px; 
-  font-size: 1.1rem;
-  background: var(--primary); 
-  color: white;
-  border: none; 
-  border-radius: 14px; 
-  cursor: pointer;
-  font-weight: bold; 
-  margin-top: 10px;
-  box-shadow: 0 4px 12px rgba(21, 101, 192, 0.2);
+input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+input.invalid { border-color: var(--error); background: #fef2f2; }
+
+/* Result Area */
+.result-card {
+  margin-top: 20px; background: var(--primary); color: white;
+  padding: 24px; border-radius: 20px; text-align: center;
+  box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4);
+  display: none; animation: slideUp 0.4s ease-out;
 }
 
-#errorToast {
-  background: var(--error); color: white; padding: 12px;
-  border-radius: 10px; text-align: center; margin-bottom: 15px;
-  display: none; font-weight: bold; font-size: 0.9rem;
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+.score-main { font-size: 3.5rem; font-weight: 900; line-height: 1; margin: 10px 0; }
+.breakdown { font-size: 0.85rem; opacity: 0.9; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 10px; }
+
+.error-toast {
+  background: var(--error); color: white; padding: 12px; border-radius: 10px;
+  text-align: center; position: fixed; bottom: 20px; left: 20px; right: 20px;
+  display: none; z-index: 100; font-weight: bold;
 }
 
-.result {
-  margin-top: 20px; background: var(--card); padding: 25px;
-  border-radius: 18px; text-align: center; display: none;
-  border: 2px solid var(--primary);
-}
-
-.score { font-size: 3rem; font-weight: 900; margin: 10px 0; }
-.pass { color: #2d6a4f; }
-.fail { color: var(--error); }
-
-.theme-toggle { display: flex; justify-content: flex-start; margin-bottom: 10px; }
-.theme-toggle button { width: auto; padding: 6px 12px; font-size: 0.8rem; margin: 0; background: #eee; color: #333; }
-[data-theme="dark"] .theme-toggle button { background: #333; color: #eee; }
-
+button.reset { background: #64748b; margin-top: 10px; opacity: 0.8; }
 </style>
 </head>
 
 <body>
 
 <div class="container">
-  <div class="theme-toggle">
-    <button onclick="toggleTheme()">🌓 وضع القراءة</button>
+  <div class="top-bar">
+    <button class="icon-btn" onclick="toggleTheme()">🌓 وضع القراءة</button>
+    <button class="icon-btn" onclick="resetForm()">🔄 مسح الكل</button>
   </div>
 
-  <h1>حاسبة المعدل (/20)</h1>
+  <header>
+    <h1>حاسبة المعدل</h1>
+    <div class="tagline">كلية الحقوق - السداسي الأول</div>
+  </header>
 
-  <div id="errorToast">⚠️ خطأ: لا يمكن إدخال علامة أكبر من 20!</div>
+  <div id="calculator-form">
+    <div class="module">
+      <div class="module-header"><span class="module-title">مدخل للعلوم القانونية</span><span class="coef-badge">معامل 2</span></div>
+      <div class="input-grid">
+        <div class="input-wrapper"><label>محاضرة (60%)</label><input type="number" step="0.01" id="m1c" placeholder="00.00"></div>
+        <div class="input-wrapper"><label>أعمال (40%)</label><input type="number" step="0.01" id="m1t" placeholder="00.00"></div>
+      </div>
+    </div>
 
-  <div class="module">
-    <h3>مدخل إلى العلوم القانونية (2)</h3>
-    <div class="input-group">
-      <input type="number" id="m1c" placeholder="المحاضرة" oninput="validate(this)">
-      <input type="number" id="m1t" placeholder="TD" oninput="validate(this)">
+    <div class="module">
+      <div class="module-header"><span class="module-title">قانون دستوري</span><span class="coef-badge">معامل 2</span></div>
+      <div class="input-grid">
+        <div class="input-wrapper"><label>محاضرة (60%)</label><input type="number" step="0.01" id="m2c" placeholder="00.00"></div>
+        <div class="input-wrapper"><label>أعمال (40%)</label><input type="number" step="0.01" id="m2t" placeholder="00.00"></div>
+      </div>
+    </div>
+
+    <div class="module">
+      <div class="module-header"><span class="module-title">تنظيم قضائي</span><span class="coef-badge">معامل 1</span></div>
+      <div class="input-grid">
+        <div class="input-wrapper"><label>محاضرة (60%)</label><input type="number" step="0.01" id="m3c" placeholder="00.00"></div>
+        <div class="input-wrapper"><label>أعمال (40%)</label><input type="number" step="0.01" id="m3t" placeholder="00.00"></div>
+      </div>
+    </div>
+
+    <div class="module">
+      <div class="module-header"><span class="module-title">منهجية العلوم القانونية</span><span class="coef-badge">معامل 1</span></div>
+      <input type="number" step="0.01" id="m4" placeholder="العلامة من 20">
+    </div>
+
+    <div class="module">
+      <div class="module-header"><span class="module-title">تاريخ النظم</span><span class="coef-badge">معامل 1</span></div>
+      <input type="number" step="0.01" id="m5" placeholder="العلامة من 20">
+    </div>
+
+    <div class="module">
+      <div class="module-header"><span class="module-title">اللغة الإنجليزية</span><span class="coef-badge">معامل 1</span></div>
+      <input type="number" step="0.01" id="m6" placeholder="العلامة من 20">
+    </div>
+
+    <div class="module" style="margin-bottom: 30px;">
+      <div class="module-header"><span class="module-title">المجتمع الدولي</span><span class="coef-badge">معامل 1</span></div>
+      <input type="number" step="0.01" id="m7" placeholder="العلامة من 20">
     </div>
   </div>
 
-  <div class="module">
-    <h3>قانون دستوري (2)</h3>
-    <div class="input-group">
-      <input type="number" id="m2c" placeholder="المحاضرة" oninput="validate(this)">
-      <input type="number" id="m2t" placeholder="TD" oninput="validate(this)">
-    </div>
+  <div class="result-card" id="resultArea">
+    <div id="statusLabel" style="font-weight: 700; font-size: 1.1rem; text-transform: uppercase;">المعدل النهائي</div>
+    <div class="score-main" id="finalScore">0.00</div>
+    <div id="motivationalMsg" style="font-weight: 600;"></div>
+    <div class="breakdown" id="breakdown"></div>
   </div>
 
-  <div class="module">
-    <h3>تنظيم قضائي (1)</h3>
-    <div class="input-group">
-      <input type="number" id="m3c" placeholder="المحاضرة" oninput="validate(this)">
-      <input type="number" id="m3t" placeholder="TD" oninput="validate(this)">
-    </div>
-  </div>
-
-  <div class="module"><h3>منهجية (1)</h3><input type="number" id="m4" placeholder="العلامة" oninput="validate(this)"></div>
-  <div class="module"><h3>تاريخ النظم (1)</h3><input type="number" id="m5" placeholder="العلامة" oninput="validate(this)"></div>
-  <div class="module"><h3>الإنجليزية (1)</h3><input type="number" id="m6" placeholder="العلامة" oninput="validate(this)"></div>
-  <div class="module"><h3>المجتمع الدولي (1)</h3><input type="number" id="m7" placeholder="العلامة" oninput="validate(this)"></div>
-
-  <button onclick="calculate()">احسب الآن</button>
-  
-  <div class="result" id="resultArea">
-    <div id="statusText">معدلك هو:</div>
-    <div id="finalScore" class="score">0.00</div>
-    <div id="msg"></div>
-  </div>
+  <div id="errorToast" class="error-toast">⚠️ لا يمكن تجاوز العلامة 20</div>
 </div>
 
 <script>
+const inputs = document.querySelectorAll('input');
+const resultArea = document.getElementById('resultArea');
+
+// 1. Auto-Calculate + Save + Validate on every keystroke
+inputs.forEach(input => {
+    input.addEventListener('input', () => {
+        validateInput(input);
+        saveData();
+        calculate();
+    });
+});
+
+function validateInput(el) {
+    const val = parseFloat(el.value);
+    const toast = document.getElementById('errorToast');
+    if (val > 20) {
+        el.classList.add('invalid');
+        toast.style.display = 'block';
+    } else {
+        el.classList.remove('invalid');
+        const anyErrors = Array.from(inputs).some(i => parseFloat(i.value) > 20);
+        if (!anyErrors) toast.style.display = 'none';
+    }
+}
+
+function saveData() {
+    inputs.forEach(i => localStorage.setItem(i.id, i.value));
+}
+
+function loadData() {
+    inputs.forEach(i => {
+        i.value = localStorage.getItem(i.id) || "";
+    });
+    if (localStorage.getItem('theme') === 'dark') toggleTheme();
+    calculate(); // Calculate immediately if there's saved data
+}
+
+function resetForm() {
+    if(confirm('هل تريد مسح جميع البيانات؟')) {
+        localStorage.clear();
+        location.reload();
+    }
+}
+
 function toggleTheme() {
     const root = document.documentElement;
     const isDark = root.getAttribute('data-theme') === 'dark';
     root.setAttribute('data-theme', isDark ? 'light' : 'dark');
-}
-
-function validate(input) {
-    const val = parseFloat(input.value);
-    const toast = document.getElementById("errorToast");
-    const module = input.closest('.module');
-    
-    if (val > 20) {
-        module.classList.add('error-border');
-        toast.style.display = "block";
-    } else {
-        module.classList.remove('error-border');
-        if (document.querySelectorAll('.error-border').length === 0) toast.style.display = "none";
-    }
+    localStorage.setItem('theme', isDark ? 'light' : 'dark');
 }
 
 function calculate() {
-    const inputs = document.querySelectorAll('input[type="number"]');
-    let tooHigh = false;
-    inputs.forEach(i => { if (parseFloat(i.value) > 20) tooHigh = true; });
-
-    if (tooHigh) {
-        alert("يرجى تصحيح العلامات (بحد أقصى 20)");
-        return;
-    }
-
     const getV = (id) => {
         const v = document.getElementById(id).value;
         return v === "" ? 0 : parseFloat(v);
     };
-    
-    const m1 = (getV("m1c")*0.6 + getV("m1t")*0.4) * 2;
-    const m2 = (getV("m2c")*0.6 + getV("m2t")*0.4) * 2;
-    const m3 = (getV("m3c")*0.6 + getV("m3t")*0.4) * 1;
-    const rest = getV("m4") + getV("m5") + getV("m6") + getV("m7");
 
-    const total = (m1 + m2 + m3 + rest) / 9;
-    const resArea = document.getElementById("resultArea");
-    const scoreDiv = document.getElementById("finalScore");
-    
-    resArea.style.display = "block";
-    scoreDiv.innerText = total.toFixed(2);
-    
-    if(total >= 10) {
-        scoreDiv.className = "score pass";
-        document.getElementById("msg").innerHTML = "ناجح! sa7it yal 5abash 😤🔥";
-        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-    } else {
-        scoreDiv.className = "score fail";
-        document.getElementById("msg").innerHTML = "للأسف راسب، المعدل أقل من 10 ❌";
+    // Check errors
+    const hasError = Array.from(inputs).some(i => parseFloat(i.value) > 20);
+    if (hasError) return;
+
+    // Weights
+    const m1 = (getV('m1c') * 0.6 + getV('m1t') * 0.4) * 2;
+    const m2 = (getV('m2c') * 0.6 + getV('m2t') * 0.4) * 2;
+    const m3 = (getV('m3c') * 0.6 + getV('m3t') * 0.4) * 1;
+    const m4 = getV('m4') * 1;
+    const m5 = getV('m5') * 1;
+    const m6 = getV('m6') * 1;
+    const m7 = getV('m7') * 1;
+
+    const totalPoints = m1 + m2 + m3 + m4 + m5 + m6 + m7;
+    const avg = totalPoints / 9;
+
+    // Only show result if some inputs have values
+    const hasValue = Array.from(inputs).some(i => i.value !== "");
+    if (!hasValue) {
+        resultArea.style.display = 'none';
+        return;
     }
 
-    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    resultArea.style.display = 'block';
+    document.getElementById('finalScore').innerText = avg.toFixed(2);
+
+    // Dynamic Messages
+    const msg = document.getElementById('motivationalMsg');
+    if (avg >= 10) {
+        resultArea.style.background = 'var(--success)';
+        msg.innerText = "sa7it yal 5abash 😤🔥";
+        if (avg >= 15) confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+    } else {
+        resultArea.style.background = 'var(--primary)';
+        msg.innerText = "واصل العمل، يمكنك فعلها! 💪";
+    }
+
+    // Breakdown Text
+    document.getElementById('breakdown').innerHTML = 
+        `مجموع النقاط: ${totalPoints.toFixed(2)} ÷ 9 (مجموع المعاملات)`;
 }
+
+window.onload = loadData;
 </script>
+
 </body>
 </html>
