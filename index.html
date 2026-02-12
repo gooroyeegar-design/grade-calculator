@@ -2,8 +2,13 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
+<meta name="google-site-verification" content="7VnCPN-c_Xel-VIxwV3LicJWGOkqx8UpFrS4zFBcDYI" />
 <title>حاسبة المعدل النهائية</title>
-  <meta name="google-site-verification" content="7VnCPN-c_Xel-VIxwV3LicJWGOkqx8UpFrS4zFBcDYI" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
 <style>
 :root {
   --primary: #1565c0;
@@ -22,7 +27,7 @@
   --border: #444;
 }
 
-* { box-sizing: border-box; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 body {
   font-family: "Segoe UI", Tahoma, sans-serif;
@@ -30,17 +35,18 @@ body {
   color: var(--text);
   padding: 15px;
   direction: rtl;
-  transition: background 0.3s;
   margin: 0;
+  /* Prevents the "desktop" zoom out */
+  width: 100%;
 }
 
 .container { 
   width: 100%; 
-  max-width: 500px; /* Limits width on PC but stays 100% on mobile */
+  max-width: 480px; /* Limits width on large screens, stays full on mobile */
   margin: auto; 
 }
 
-h1 { font-size: 1.5rem; text-align: center; margin: 20px 0; }
+h1 { font-size: 1.4rem; text-align: center; margin: 15px 0; color: var(--text); }
 
 .module {
   background: var(--card);
@@ -48,72 +54,60 @@ h1 { font-size: 1.5rem; text-align: center; margin: 20px 0; }
   margin-bottom: 12px;
   border-radius: 12px;
   border: 2px solid transparent;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.03);
 }
 
-.error-border {
-  border-color: var(--error) !important;
-  background-color: rgba(230, 57, 70, 0.05);
-}
+.error-border { border-color: var(--error) !important; background: rgba(230, 57, 70, 0.05); }
 
-h3 { margin: 0 0 10px 0; font-size: 0.95rem; color: var(--primary); }
+h3 { margin: 0 0 10px 0; font-size: 0.9rem; color: var(--primary); font-weight: 600; }
 
-/* Improved Input Group for Mobile */
-.input-group { 
-  display: flex; 
-  gap: 8px; 
-}
+.input-group { display: flex; gap: 8px; }
 
 input {
   width: 100%; 
-  padding: 12px; 
-  border-radius: 8px; 
+  padding: 14px; /* Bigger touch area for mobile */
+  border-radius: 10px; 
   border: 1px solid var(--border); 
   background: var(--card);
   color: var(--text); 
-  font-size: 16px; /* Prevents iOS auto-zoom */
+  font-size: 16px; /* 16px prevents iOS from auto-zooming on focus */
   outline: none;
-  min-width: 0; /* Important for flex items */
+  min-width: 0;
 }
-
-input:focus { border-color: var(--primary); }
 
 button {
   width: 100%; 
   padding: 16px; 
-  font-size: 18px;
+  font-size: 1.1rem;
   background: var(--primary); 
   color: white;
   border: none; 
-  border-radius: 12px; 
+  border-radius: 14px; 
   cursor: pointer;
   font-weight: bold; 
   margin-top: 10px;
+  box-shadow: 0 4px 12px rgba(21, 101, 192, 0.2);
 }
 
 #errorToast {
-  background: var(--error);
-  color: white;
-  padding: 12px;
-  border-radius: 8px;
-  text-align: center;
-  margin-bottom: 15px;
-  display: none;
-  font-weight: bold;
+  background: var(--error); color: white; padding: 12px;
+  border-radius: 10px; text-align: center; margin-bottom: 15px;
+  display: none; font-weight: bold; font-size: 0.9rem;
 }
 
 .result {
-  margin-top: 20px; background: var(--card); padding: 20px;
-  border-radius: 15px; text-align: center; display: none;
+  margin-top: 20px; background: var(--card); padding: 25px;
+  border-radius: 18px; text-align: center; display: none;
   border: 2px solid var(--primary);
 }
 
-.score { font-size: 2.5rem; font-weight: 900; margin: 5px 0; }
+.score { font-size: 3rem; font-weight: 900; margin: 10px 0; }
 .pass { color: #2d6a4f; }
 .fail { color: var(--error); }
 
-.theme-toggle { margin-bottom: 15px; }
-.theme-toggle button { width: auto; padding: 8px 15px; font-size: 13px; margin: 0; }
+.theme-toggle { display: flex; justify-content: flex-start; margin-bottom: 10px; }
+.theme-toggle button { width: auto; padding: 6px 12px; font-size: 0.8rem; margin: 0; background: #eee; color: #333; }
+[data-theme="dark"] .theme-toggle button { background: #333; color: #eee; }
 
 </style>
 </head>
@@ -169,8 +163,9 @@ button {
 
 <script>
 function toggleTheme() {
-    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    const root = document.documentElement;
+    const isDark = root.getAttribute('data-theme') === 'dark';
+    root.setAttribute('data-theme', isDark ? 'light' : 'dark');
 }
 
 function validate(input) {
@@ -190,11 +185,10 @@ function validate(input) {
 function calculate() {
     const inputs = document.querySelectorAll('input[type="number"]');
     let tooHigh = false;
-
     inputs.forEach(i => { if (parseFloat(i.value) > 20) tooHigh = true; });
 
     if (tooHigh) {
-        alert("يرجى تصحيح العلامات التي تتجاوز 20!");
+        alert("يرجى تصحيح العلامات (بحد أقصى 20)");
         return;
     }
 
@@ -218,11 +212,10 @@ function calculate() {
     if(total >= 10) {
         scoreDiv.className = "score pass";
         document.getElementById("msg").innerHTML = "ناجح! sa7it yal 5abash 😤🔥";
-        // Confetti Burst!
         confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
     } else {
         scoreDiv.className = "score fail";
-        document.getElementById("msg").innerHTML = "للأسف، المعدل أقل من 10 ❌";
+        document.getElementById("msg").innerHTML = "للأسف راسب، المعدل أقل من 10 ❌";
     }
 
     window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
