@@ -1,269 +1,248 @@
-<!DOCTYPE html>
-<html lang="ar">
-<head>
-<meta charset="UTF-8">
-<meta name="google-site-verification" content="7VnCPN-c_Xel-VIxwV3LicJWGOkqx8UpFrS4zFBcDYI" />
-<title>حاسبة المعدل النهائية</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
-<style>
-:root {
-  --primary: #2563eb; --bg: #f8fafc; --card: #ffffff;
-  --text-main: #0f172a; --text-muted: #64748b;
-  --border: #e2e8f0; --success: #10b981; --error: #ef4444;
-}
-[data-theme="dark"] {
-  --bg: #020617; --card: #1e293b; --text-main: #f8fafc;
-  --text-muted: #94a3b8; --border: #334155;
-}
-
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Segoe UI', system-ui, sans-serif; }
-body { background: var(--bg); color: var(--text-main); direction: rtl; margin: 0; padding: 15px; transition: 0.3s; }
-.container { width: 100%; max-width: 480px; margin: 0 auto; padding-bottom: 40px; }
-
-/* Top Nav */
-.top-nav { display: flex; justify-content: space-between; margin-bottom: 20px; }
-.btn-ui { background: var(--card); border: 1px solid var(--border); padding: 8px 15px; border-radius: 12px; cursor: pointer; color: var(--text-main); font-size: 0.85rem; }
-
-/* Goal Card */
-.goal-card {
-  background: linear-gradient(135deg, #6366f1, #a855f7);
-  color: white; padding: 22px; border-radius: 24px; margin-bottom: 25px;
-  box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
-}
-.goal-input-group { display: flex; align-items: center; gap: 15px; margin-top: 10px; }
-.goal-input-group input { 
-  width: 90px; background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.3);
-  color: white; text-align: center; font-weight: 800; padding: 10px; border-radius: 12px; font-size: 1.2rem; outline: none;
-}
-
-/* Module Cards */
-.module-card {
-  background: var(--card); padding: 20px; margin-bottom: 18px; border-radius: 22px;
-  border: 1px solid var(--border); box-shadow: 0 4px 10px rgba(0,0,0,0.03);
-}
-.card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-.badge { background: var(--bg); padding: 4px 12px; border-radius: 10px; font-size: 0.75rem; color: var(--primary); font-weight: 800; }
-
-.input-row { display: flex; gap: 12px; }
-.field { flex: 1; }
-label { display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 5px; }
-input[type="number"] {
-  width: 100%; padding: 14px; border-radius: 14px; border: 1.5px solid var(--border);
-  background: var(--card); color: var(--text-main); font-size: 1rem; outline: none;
-}
-input:focus { border-color: var(--primary); }
-
-/* Result Area */
-.result-section { display: none; margin-top: 30px; animation: slideUp 0.5s ease; }
-@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } }
-
-.result-box { 
-    background: var(--primary); color: white; padding: 35px; border-radius: 30px; text-align: center;
-    box-shadow: 0 20px 30px rgba(37, 99, 235, 0.3);
-}
-.avg-number { font-size: 4.5rem; font-weight: 900; margin: 5px 0; }
-.calc-details { font-size: 0.8rem; opacity: 0.8; margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 15px; }
-
-/* Chips */
-.chips { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
-.chip { padding: 12px; border-radius: 15px; font-size: 0.85rem; font-weight: 700; text-align: right; }
-.chip-best { background: rgba(16, 185, 129, 0.2); border-right: 4px solid var(--success); }
-.chip-worst { background: rgba(239, 68, 68, 0.2); border-right: 4px solid var(--error); }
-
-.action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
-.btn-action { padding: 18px; border-radius: 18px; border: none; font-weight: 800; cursor: pointer; font-size: 0.95rem; }
-.btn-ss { background: var(--success); color: white; }
-.btn-dl { background: #0f172a; color: white; }
-
-#toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--error); color: white; padding: 10px 20px; border-radius: 50px; display: none; z-index: 100; }
-</style>
-</head>
-
-<body>
-<div id="toast">⚠️ العلامة يجب أن تكون بين 0 و 20</div>
-
-<div class="container">
-  <div class="top-nav">
-    <button class="btn-ui" onclick="toggleMode()">🌓 مظهر</button>
-    <button class="btn-ui" onclick="clearAll()">🔄 تصفير</button>
-  </div>
-
-  <div class="goal-card">
-    <div style="font-weight: 700;">🎯 المعدل المستهدف</div>
-    <div class="goal-input-group">
-      <input type="number" id="targetGoal" value="10.00" step="0.1" oninput="calculate()">
-      <span style="font-size: 0.85rem; opacity: 0.9;">حدد هدفك لمشاهدة التوقعات</span>
-    </div>
-  </div>
-
-  <div id="calculator">
-    <div class="module-card">
-      <div class="card-head"><b>مدخل للعلوم القانونية</b> <span class="badge">معامل 2</span></div>
-      <div class="input-row">
-        <div class="field"><label>محاضرة (60%)</label><input type="number" id="m1c" placeholder="0.0"></div>
-        <div class="field"><label>TD (40%)</label><input type="number" id="m1t" placeholder="0.0"></div>
-      </div>
-    </div>
-    <div class="module-card">
-      <div class="card-head"><b>قانون دستوري</b> <span class="badge">معامل 2</span></div>
-      <div class="input-row">
-        <div class="field"><label>محاضرة (60%)</label><input type="number" id="m2c" placeholder="0.0"></div>
-        <div class="field"><label>TD (40%)</label><input type="number" id="m2t" placeholder="0.0"></div>
-      </div>
-    </div>
-    <div class="module-card">
-      <div class="card-head"><b>تنظيم قضائي</b> <span class="badge">معامل 1</span></div>
-      <div class="input-row">
-        <div class="field"><label>محاضرة (60%)</label><input type="number" id="m3c" placeholder="0.0"></div>
-        <div class="field"><label>TD (40%)</label><input type="number" id="m3t" placeholder="0.0"></div>
-      </div>
-    </div>
-    <div class="module-card"><div class="card-head"><b>منهجية</b> <span class="badge">معامل 1</span></div><input type="number" id="m4" placeholder="0.0"></div>
-    <div class="module-card"><div class="card-head"><b>تاريخ النظم</b> <span class="badge">معامل 1</span></div><input type="number" id="m5" placeholder="0.0"></div>
-    <div class="module-card"><div class="card-head"><b>الإنجليزية</b> <span class="badge">معامل 1</span></div><input type="number" id="m6" placeholder="0.0"></div>
-    <div class="module-card"><div class="card-head"><b>المجتمع الدولي</b> <span class="badge">معامل 1</span></div><input type="number" id="m7" placeholder="0.0"></div>
-  </div>
-
-  <div class="result-section" id="resSection">
-    <div id="captureArea">
-      <div class="result-box">
-        <div id="statusTxt" style="font-weight: 800;">المعدل الحالي</div>
-        <div class="avg-number" id="avgOut">0.00</div>
-        <div id="targetMsg" style="background:rgba(0,0,0,0.1); padding:10px; border-radius:12px; font-size:0.85rem;"></div>
-        <div class="chips">
-            <div id="best" class="chip chip-best"></div>
-            <div id="worst" class="chip chip-worst"></div>
-        </div>
-        <div class="calc-details" id="calcDetails"></div>
-      </div>
-    </div>
-
-    <div class="action-btns">
-      <button class="btn-action btn-ss" onclick="takeSS()">📸 صورة للنتيجة</button>
-      <button class="btn-action btn-dl" onclick="dlTxt()">📄 حفظ نصي</button>
-    </div>
-  </div>
+<!DOCTYPE html>  <html lang="ar">  
+<head>  
+<meta charset="UTF-8">  
+<meta name="google-site-verification" content="7VnCPN-c_Xel-VIxwV3LicJWGOkqx8UpFrS4zFBcDYI" />  
+<title>حاسبة المعدل النهائية</title>  
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>  <style>  
+:root {  
+  --primary: #2563eb; --bg: #f8fafc; --card: #ffffff;  
+  --text-main: #0f172a; --text-muted: #64748b;  
+  --border: #e2e8f0; --success: #10b981; --error: #ef4444;  
+}  
+[data-theme="dark"] {  
+  --bg: #020617; --card: #1e293b; --text-main: #f8fafc;  
+  --text-muted: #94a3b8; --border: #334155;  
+}  
+  
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Segoe UI', system-ui, sans-serif; }  
+body { background: var(--bg); color: var(--text-main); direction: rtl; margin: 0; padding: 15px; transition: 0.3s; }  
+.container { width: 100%; max-width: 480px; margin: 0 auto; padding-bottom: 40px; }  
+  
+/* Top Nav */  
+.top-nav { display: flex; justify-content: space-between; margin-bottom: 20px; }  
+.btn-ui { background: var(--card); border: 1px solid var(--border); padding: 8px 15px; border-radius: 12px; cursor: pointer; color: var(--text-main); font-size: 0.85rem; }  
+  
+/* Goal Card */  
+.goal-card {  
+  background: linear-gradient(135deg, #6366f1, #a855f7);  
+  color: white; padding: 22px; border-radius: 24px; margin-bottom: 25px;  
+  box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);  
+}  
+.goal-input-group { display: flex; align-items: center; gap: 15px; margin-top: 10px; }  
+.goal-input-group input {   
+  width: 90px; background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.3);  
+  color: white; text-align: center; font-weight: 800; padding: 10px; border-radius: 12px; font-size: 1.2rem; outline: none;  
+}  
+  
+/* Module Cards */  
+.module-card {  
+  background: var(--card); padding: 20px; margin-bottom: 18px; border-radius: 22px;  
+  border: 1px solid var(--border); box-shadow: 0 4px 10px rgba(0,0,0,0.03);  
+}  
+.card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }  
+.badge { background: var(--bg); padding: 4px 12px; border-radius: 10px; font-size: 0.75rem; color: var(--primary); font-weight: 800; }  
+  
+.input-row { display: flex; gap: 12px; }  
+.field { flex: 1; }  
+label { display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 5px; }  
+input[type="number"] {  
+  width: 100%; padding: 14px; border-radius: 14px; border: 1.5px solid var(--border);  
+  background: var(--card); color: var(--text-main); font-size: 1rem; outline: none;  
+}  
+input:focus { border-color: var(--primary); }  
+  
+/* Result Area */  
+.result-section { display: none; margin-top: 30px; animation: slideUp 0.5s ease; }  
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } }  
+  
+.result-box {   
+    background: var(--primary); color: white; padding: 35px; border-radius: 30px; text-align: center;  
+    box-shadow: 0 20px 30px rgba(37, 99, 235, 0.3);  
+}  
+.avg-number { font-size: 4.5rem; font-weight: 900; margin: 5px 0; }  
+.calc-details { font-size: 0.8rem; opacity: 0.8; margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 15px; }  
+  
+/* Chips */  
+.chips { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }  
+.chip { padding: 12px; border-radius: 15px; font-size: 0.85rem; font-weight: 700; text-align: right; }  
+.chip-best { background: rgba(16, 185, 129, 0.2); border-right: 4px solid var(--success); }  
+.chip-worst { background: rgba(239, 68, 68, 0.2); border-right: 4px solid var(--error); }  
+  
+.action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }  
+.btn-action { padding: 18px; border-radius: 18px; border: none; font-weight: 800; cursor: pointer; font-size: 0.95rem; }  
+.btn-ss { background: var(--success); color: white; }  
+.btn-dl { background: #0f172a; color: white; }  
+  
+#toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--error); color: white; padding: 10px 20px; border-radius: 50px; display: none; z-index: 100; }  
+</style>  </head>  <body>  
+<div id="toast">⚠️ العلامة يجب أن تكون بين 0 و 20</div>  <div class="container">  
+  <div class="top-nav">  
+    <button class="btn-ui" onclick="toggleMode()">🌓 مظهر</button>  
+    <button class="btn-ui" onclick="clearAll()">🔄 تصفير</button>  
+  </div>    <div class="goal-card">  
+    <div style="font-weight: 700;">🎯 المعدل المستهدف</div>  
+    <div class="goal-input-group">  
+      <input type="number" id="targetGoal" value="10.00" step="0.1" oninput="calculate()">  
+      <span style="font-size: 0.85rem; opacity: 0.9;">حدد هدفك لمشاهدة التوقعات</span>  
+    </div>  
+  </div>    <div id="calculator">  
+    <div class="module-card">  
+      <div class="card-head"><b>مدخل للعلوم القانونية</b> <span class="badge">معامل 2</span></div>  
+      <div class="input-row">  
+        <div class="field"><label>محاضرة (60%)</label><input type="number" id="m1c" placeholder="0.0"></div>  
+        <div class="field"><label>TD (40%)</label><input type="number" id="m1t" placeholder="0.0"></div>  
+      </div>  
+    </div>  
+    <div class="module-card">  
+      <div class="card-head"><b>قانون دستوري</b> <span class="badge">معامل 2</span></div>  
+      <div class="input-row">  
+        <div class="field"><label>محاضرة (60%)</label><input type="number" id="m2c" placeholder="0.0"></div>  
+        <div class="field"><label>TD (40%)</label><input type="number" id="m2t" placeholder="0.0"></div>  
+      </div>  
+    </div>  
+    <div class="module-card">  
+      <div class="card-head"><b>تنظيم قضائي</b> <span class="badge">معامل 1</span></div>  
+      <div class="input-row">  
+        <div class="field"><label>محاضرة (60%)</label><input type="number" id="m3c" placeholder="0.0"></div>  
+        <div class="field"><label>TD (40%)</label><input type="number" id="m3t" placeholder="0.0"></div>  
+      </div>  
+    </div>  
+    <div class="module-card"><div class="card-head"><b>منهجية</b> <span class="badge">معامل 1</span></div><input type="number" id="m4" placeholder="0.0"></div>  
+    <div class="module-card"><div class="card-head"><b>تاريخ النظم</b> <span class="badge">معامل 1</span></div><input type="number" id="m5" placeholder="0.0"></div>  
+    <div class="module-card"><div class="card-head"><b>الإنجليزية</b> <span class="badge">معامل 1</span></div><input type="number" id="m6" placeholder="0.0"></div>  
+    <div class="module-card"><div class="card-head"><b>المجتمع الدولي</b> <span class="badge">معامل 1</span></div><input type="number" id="m7" placeholder="0.0"></div>  
+  </div>    <div class="result-section" id="resSection">  
+    <div id="captureArea">  
+      <div class="result-box">  
+        <div id="statusTxt" style="font-weight: 800;">المعدل الحالي</div>  
+        <div class="avg-number" id="avgOut">0.00</div>  
+        <div id="targetMsg" style="background:rgba(0,0,0,0.1); padding:10px; border-radius:12px; font-size:0.85rem;"></div>  
+        <div class="chips">  
+            <div id="best" class="chip chip-best"></div>  
+            <div id="worst" class="chip chip-worst"></div>  
+        </div>  
+        <div class="calc-details" id="calcDetails"></div>  
+      </div>  
+    </div>  <div class="action-btns">  
+  <button class="btn-action btn-ss" onclick="takeSS()">📸 صورة للنتيجة</button>  
+  <button class="btn-action btn-dl" onclick="dlTxt()">📄 حفظ نصي</button>  
 </div>
 
-<script>
-const inputs = document.querySelectorAll('input');
-let currentAvg = 0;
-
-window.onload = () => {
-    inputs.forEach(i => i.value = localStorage.getItem(i.id) || i.value);
-    calculate();
-};
-
-inputs.forEach(input => {
-    input.addEventListener('input', () => {
-        const val = parseFloat(input.value);
-        if(val > 20 || val < 0) { document.getElementById('toast').style.display='block'; return; }
-        document.getElementById('toast').style.display='none';
-        localStorage.setItem(input.id, input.value);
-        calculate();
-    });
-});
-
-function calculate() {
-    const getV = (id) => {
-        const v = document.getElementById(id).value;
-        return v === "" ? null : parseFloat(v);
-    };
-
-    const modules = [
-        { name: "مدخل قانون", val: (getV('m1c')!==null && getV('m1t')!==null) ? (getV('m1c')*0.6 + getV('m1t')*0.4) : null, coef: 2 },
-        { name: "دستوري", val: (getV('m2c')!==null && getV('m2t')!==null) ? (getV('m2c')*0.6 + getV('m2t')*0.4) : null, coef: 2 },
-        { name: "تنظيم قضائي", val: (getV('m3c')!==null && getV('m3t')!==null) ? (getV('m3c')*0.6 + getV('m3t')*0.4) : null, coef: 1 },
-        { name: "منهجية", val: getV('m4'), coef: 1 },
-        { name: "تاريخ نظم", val: getV('m5'), coef: 1 },
-        { name: "إنجليزية", val: getV('m6'), coef: 1 },
-        { name: "مجتمع دولي", val: getV('m7'), coef: 1 }
-    ];
-
-    let totalPoints = 0, filledCoefs = 0, missingCoefs = 0;
-    let scores = [];
-
-    modules.forEach(m => {
-        if(m.val !== null) {
-            totalPoints += (m.val * m.coef);
-            filledCoefs += m.coef;
-            scores.push(m);
-        } else { missingCoefs += m.coef; }
-    });
-
-    const resSection = document.getElementById('resSection');
-    if(filledCoefs === 0) { resSection.style.display = 'none'; return; }
-    resSection.style.display = 'block';
-
-    const finalAvg = (totalPoints / 9).toFixed(2);
-    
-    // Smooth Typing Animation Logic
-    animateValue("avgOut", parseFloat(document.getElementById('avgOut').innerText), parseFloat(finalAvg), 300);
-
-    // Goal Logic
-    const goal = parseFloat(document.getElementById('targetGoal').value) || 10;
-    const msg = document.getElementById('targetMsg');
-    if(missingCoefs > 0) {
-        const needed = ((goal * 9) - totalPoints) / missingCoefs;
-        msg.innerHTML = needed > 20 ? "🚩 الهدف يتطلب علامات خيالية" : `للوصول لـ ${goal} تحتاج لمعدل <b>${needed.toFixed(2)}</b> فيما تبقى`;
-    } else {
-        msg.innerHTML = finalAvg >= goal ? "🎉 تم تحقيق الهدف بنجاح!" : "🏁 انتهى السداسي";
-        if(finalAvg >= 10 && finalAvg != currentAvg) confetti({ particleCount: 30, spread: 50 });
-    }
-    currentAvg = finalAvg;
-
-    // Analytics
-    if(scores.length > 1) {
-        const sorted = [...scores].sort((a,b) => b.val - a.val);
-        document.getElementById('best').innerHTML = `🌟 الأفضل: ${sorted[0].name} (${sorted[0].val.toFixed(2)})`;
-        document.getElementById('worst').innerHTML = `📉 الأضعف: ${sorted[sorted.length-1].name} (${sorted[sorted.length-1].val.toFixed(2)})`;
-    }
-
-    // Bottom Calculation Details
-    document.getElementById('calcDetails').innerHTML = `مجموع النقاط الحالي: ${totalPoints.toFixed(2)} ÷ 9 (المعامل الإجمالي)`;
-}
-
-function animateValue(id, start, end, duration) {
-    const obj = document.getElementById(id);
-    let startTimestamp = null;
-    const step = (timestamp) => {
-        if (!startTimestamp) startTimestamp = timestamp;
-        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-        obj.innerText = (progress * (end - start) + start).toFixed(2);
-        if (progress < 1) window.requestAnimationFrame(step);
-    };
-    window.requestAnimationFrame(step);
-}
-
-function takeSS() {
-    const area = document.getElementById('captureArea');
-    html2canvas(area, { backgroundColor: null, borderRadius: 30, scale: 2 }).then(canvas => {
-        const link = document.createElement('a');
-        link.download = 'Result_Screenshot.png';
-        link.href = canvas.toDataURL();
-        link.click();
-    });
-}
-
-function dlTxt() {
-    let content = `حاسبة المعدل الجامعي\n------------------\nالمعدل: ${document.getElementById('avgOut').innerText}\n${document.getElementById('best').innerText}\n${document.getElementById('worst').innerText}\nالتاريخ: ${new Date().toLocaleString('ar-DZ')}`;
-    const blob = new Blob([content], { type: "text/plain" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "grades.txt";
-    link.click();
-}
-
-function toggleMode() {
-    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
-}
-
-function clearAll() { if(confirm('مسح كل البيانات؟')) { localStorage.clear(); location.reload(); } }
-</script>
-</body>
-</html>
+  </div>  
+</div>  <script>  
+const inputs = document.querySelectorAll('input');  
+let currentAvg = 0;  
+  
+window.onload = () => {  
+    inputs.forEach(i => i.value = localStorage.getItem(i.id) || i.value);  
+    calculate();  
+};  
+  
+inputs.forEach(input => {  
+    input.addEventListener('input', () => {  
+        const val = parseFloat(input.value);  
+        if(val > 20 || val < 0) { document.getElementById('toast').style.display='block'; return; }  
+        document.getElementById('toast').style.display='none';  
+        localStorage.setItem(input.id, input.value);  
+        calculate();  
+    });  
+});  
+  
+function calculate() {  
+    const getV = (id) => {  
+        const v = document.getElementById(id).value;  
+        return v === "" ? null : parseFloat(v);  
+    };  
+  
+    const modules = [  
+        { name: "مدخل قانون", val: (getV('m1c')!==null && getV('m1t')!==null) ? (getV('m1c')*0.6 + getV('m1t')*0.4) : null, coef: 2 },  
+        { name: "دستوري", val: (getV('m2c')!==null && getV('m2t')!==null) ? (getV('m2c')*0.6 + getV('m2t')*0.4) : null, coef: 2 },  
+        { name: "تنظيم قضائي", val: (getV('m3c')!==null && getV('m3t')!==null) ? (getV('m3c')*0.6 + getV('m3t')*0.4) : null, coef: 1 },  
+        { name: "منهجية", val: getV('m4'), coef: 1 },  
+        { name: "تاريخ نظم", val: getV('m5'), coef: 1 },  
+        { name: "إنجليزية", val: getV('m6'), coef: 1 },  
+        { name: "مجتمع دولي", val: getV('m7'), coef: 1 }  
+    ];  
+  
+    let totalPoints = 0, filledCoefs = 0, missingCoefs = 0;  
+    let scores = [];  
+  
+    modules.forEach(m => {  
+        if(m.val !== null) {  
+            totalPoints += (m.val * m.coef);  
+            filledCoefs += m.coef;  
+            scores.push(m);  
+        } else { missingCoefs += m.coef; }  
+    });  
+  
+    const resSection = document.getElementById('resSection');  
+    if(filledCoefs === 0) { resSection.style.display = 'none'; return; }  
+    resSection.style.display = 'block';  
+  
+    const finalAvg = (totalPoints / 9).toFixed(2);  
+      
+    // Smooth Typing Animation Logic  
+    animateValue("avgOut", parseFloat(document.getElementById('avgOut').innerText), parseFloat(finalAvg), 300);  
+  
+    // Goal Logic  
+    const goal = parseFloat(document.getElementById('targetGoal').value) || 10;  
+    const msg = document.getElementById('targetMsg');  
+    if(missingCoefs > 0) {  
+        const needed = ((goal * 9) - totalPoints) / missingCoefs;  
+        msg.innerHTML = needed > 20 ? "🚩 الهدف يتطلب علامات خيالية" : `للوصول لـ ${goal} تحتاج لمعدل <b>${needed.toFixed(2)}</b> فيما تبقى`;  
+    } else {  
+        msg.innerHTML = finalAvg >= goal ? "🎉 تم تحقيق الهدف بنجاح!" : "🏁 انتهى السداسي";  
+        if(finalAvg >= 10 && finalAvg != currentAvg) confetti({ particleCount: 30, spread: 50 });  
+    }  
+    currentAvg = finalAvg;  
+  
+    // Analytics  
+    if(scores.length > 1) {  
+        const sorted = [...scores].sort((a,b) => b.val - a.val);  
+        document.getElementById('best').innerHTML = `🌟 الأفضل: ${sorted[0].name} (${sorted[0].val.toFixed(2)})`;  
+        document.getElementById('worst').innerHTML = `📉 الأضعف: ${sorted[sorted.length-1].name} (${sorted[sorted.length-1].val.toFixed(2)})`;  
+    }  
+  
+    // Bottom Calculation Details  
+    document.getElementById('calcDetails').innerHTML = `مجموع النقاط الحالي: ${totalPoints.toFixed(2)} ÷ 9 (المعامل الإجمالي)`;  
+}  
+  
+function animateValue(id, start, end, duration) {  
+    const obj = document.getElementById(id);  
+    let startTimestamp = null;  
+    const step = (timestamp) => {  
+        if (!startTimestamp) startTimestamp = timestamp;  
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);  
+        obj.innerText = (progress * (end - start) + start).toFixed(2);  
+        if (progress < 1) window.requestAnimationFrame(step);  
+    };  
+    window.requestAnimationFrame(step);  
+}  
+  
+function takeSS() {  
+    const area = document.getElementById('captureArea');  
+    html2canvas(area, { backgroundColor: null, borderRadius: 30, scale: 2 }).then(canvas => {  
+        const link = document.createElement('a');  
+        link.download = 'Result_Screenshot.png';  
+        link.href = canvas.toDataURL();  
+        link.click();  
+    });  
+}  
+  
+function dlTxt() {  
+    let content = `حاسبة المعدل الجامعي\n------------------\nالمعدل: ${document.getElementById('avgOut').innerText}\n${document.getElementById('best').innerText}\n${document.getElementById('worst').innerText}\nالتاريخ: ${new Date().toLocaleString('ar-DZ')}`;  
+    const blob = new Blob([content], { type: "text/plain" });  
+    const link = document.createElement("a");  
+    link.href = URL.createObjectURL(blob);  
+    link.download = "grades.txt";  
+    link.click();  
+}  
+  
+function toggleMode() {  
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';  
+    document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');  
+}  
+  
+function clearAll() { if(confirm('مسح كل البيانات؟')) { localStorage.clear(); location.reload(); } }  
+</script>  </body>  
+</html>  
